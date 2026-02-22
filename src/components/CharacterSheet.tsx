@@ -1,0 +1,151 @@
+import { motion } from 'motion/react';
+import { useInView } from 'motion/react';
+import { useRef } from 'react';
+
+interface Stat {
+  label: string;
+  value: number;
+  maxValue: number;
+  color: string;
+}
+
+const stats: Stat[] = [
+  { label: 'DEV', value: 95, maxValue: 100, color: '#00F5D4' },
+  { label: 'FOR', value: 82, maxValue: 100, color: '#F72585' },
+  { label: 'ART', value: 90, maxValue: 100, color: '#7B61FF' },
+  { label: 'CAR', value: 88, maxValue: 100, color: '#D4A843' },
+  { label: 'SAB', value: 30, maxValue: 100, color: '#E8C96A' },
+];
+
+const traits = [
+  { icon: '🎮', label: 'Gamer', desc: 'Desbrava dungeons nas noites livres' },
+  { icon: '🎲', label: 'Boardgamer', desc: 'Mestre das estratégias de mesa' },
+  { icon: '🏋️', label: 'Atleta', desc: 'Academia · Funcional · Corrida' },
+  { icon: '💻', label: 'Desenvolvedor', desc: 'Escreve código, entrega produtos' },
+  { icon: '🎭', label: 'Amante do Teatro', desc: 'Peregrino semanal das peças' },
+  { icon: '🎨', label: 'Entusiasta da Arte', desc: 'Encontra beleza em tudo' },
+];
+
+function PixelBar({ value, maxValue, color, delay }: { value: number; maxValue: number; color: string; delay: number }) {
+  const totalBlocks = 20;
+  const filledBlocks = Math.round((value / maxValue) * totalBlocks);
+
+  return (
+    <div className="flex gap-[3px]">
+      {Array.from({ length: totalBlocks }).map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, scaleY: 0 }}
+          whileInView={{ opacity: 1, scaleY: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.05, delay: delay + i * 0.03 }}
+          className="w-2.5 md:w-3 h-5 md:h-6 rounded-sm"
+          style={{
+            backgroundColor: i < filledBlocks ? color : 'rgba(255,255,255,0.05)',
+            boxShadow: i < filledBlocks ? `0 0 8px ${color}40` : 'none',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function CharacterSheet() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  return (
+    <section ref={ref} className="relative py-24 md:py-32 px-6">
+      {/* Section header */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="text-center mb-16"
+      >
+        <div className="font-mono text-neon-cyan/60 text-xs tracking-[0.5em] uppercase mb-4">
+          — Ato I —
+        </div>
+        <h2 className="font-display text-5xl md:text-7xl font-bold italic text-gold">
+          O Protagonista
+        </h2>
+        <p className="font-body text-cream/50 text-sm mt-4 max-w-md mx-auto italic">
+          "Toda grande história precisa de um herói com talentos diversos e apetite por aventura"
+        </p>
+      </motion.div>
+
+      {/* Character card */}
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="max-w-3xl mx-auto"
+      >
+        <div className="relative border border-gold/20 bg-stage-dark/80 backdrop-blur-sm p-8 md:p-12"
+          style={{ animation: isInView ? 'pulse-glow 4s ease-in-out infinite' : 'none' }}>
+          {/* Corner decorations */}
+          <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-gold/60" />
+          <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-gold/60" />
+          <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-gold/60" />
+          <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-gold/60" />
+
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-start gap-6 mb-10">
+            <div className="flex-1">
+              <div className="font-mono text-neon-cyan text-xs tracking-[0.3em] mb-1">JOGADOR UM</div>
+              <h3 className="font-display text-4xl md:text-5xl font-bold text-cream italic">
+                Pedro Sereno
+              </h3>
+              <div className="font-mono text-gold/60 text-xs mt-2 tracking-wider">
+                CLASSE: Dev / Artista / Atleta &nbsp;|&nbsp; NVL: 29 → 30
+              </div>
+            </div>
+            <div className="font-mono text-right">
+              <div className="text-neon-magenta text-3xl font-bold" style={{
+                textShadow: '0 0 10px rgba(247, 37, 133, 0.5)',
+              }}>XP MAX</div>
+              <div className="text-cream/40 text-xs">LEVEL UP IMINENTE</div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="space-y-4 mb-10">
+            {stats.map((stat, i) => (
+              <div key={stat.label} className="flex items-center gap-4">
+                <div className="font-mono text-sm text-cream/60 w-10 text-right">{stat.label}</div>
+                <PixelBar value={stat.value} maxValue={stat.maxValue} color={stat.color} delay={0.1 * i} />
+                <div className="font-mono text-xs" style={{ color: stat.color }}>
+                  {stat.value}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mb-10" />
+
+          {/* Traits grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {traits.map((trait, i) => (
+              <motion.div
+                key={trait.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 * i }}
+                whileHover={{ scale: 1.05, backgroundColor: 'rgba(212, 168, 67, 0.1)' }}
+                className="border border-gold/10 p-4 cursor-default transition-colors"
+              >
+                <div className="text-2xl mb-2">{trait.icon}</div>
+                <div className="font-mono text-sm text-gold font-bold">{trait.label}</div>
+                <div className="font-body text-cream/40 text-xs mt-1 italic">{trait.desc}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
