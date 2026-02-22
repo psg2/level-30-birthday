@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# 🎭 Level 30 — Pedro Sereno
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Birthday party invitation landing page. Theater meets arcade.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React + TypeScript + Vite
+- Tailwind CSS v4
+- Motion (Framer Motion)
+- Upstash Redis (RSVP storage)
+- Vercel Serverless Functions
 
-## React Compiler
+## Deploy to Vercel
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Import on Vercel
 
-## Expanding the ESLint configuration
+Go to [vercel.com/new](https://vercel.com/new) → Import `psg2/level-30-birthday`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 2. Set up Upstash Redis
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. Go to [console.upstash.com](https://console.upstash.com) → Create a **Redis** database (free tier)
+2. Copy the **REST URL** and **REST Token**
+3. In Vercel → Project Settings → Environment Variables, add:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+| Variable | Value |
+|---|---|
+| `UPSTASH_REDIS_REST_URL` | `https://your-db.upstash.io` |
+| `UPSTASH_REDIS_REST_TOKEN` | `AXxxxxxxxxxxxx...` |
+| `ADMIN_KEY` | Any secret string you choose (e.g. `minha-chave-secreta-123`) |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+> **Tip:** You can also add Upstash directly from the [Vercel Marketplace](https://vercel.com/marketplace?search=upstash) — it auto-fills the env vars.
+
+### 3. Redeploy
+
+After adding env vars, trigger a redeploy from Vercel dashboard.
+
+## Checking RSVPs
+
+To see who confirmed:
+
+```
+https://your-site.vercel.app/api/rsvp?key=YOUR_ADMIN_KEY
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Returns JSON:
+```json
+{
+  "count": 5,
+  "guests": [
+    { "name": "Maria", "message": "Parabéns! 🎉", "timestamp": "2026-03-01T..." },
+    { "name": "João", "message": "", "timestamp": "2026-02-28T..." }
+  ]
+}
 ```
+
+## Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+> RSVP form won't work locally unless you create a `.env` file with the Upstash vars.
