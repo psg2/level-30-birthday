@@ -18,17 +18,14 @@ Go to [vercel.com/new](https://vercel.com/new) → Import `psg2/level-30-birthda
 
 ### 2. Set up Upstash Redis
 
-1. Go to [console.upstash.com](https://console.upstash.com) → Create a **Redis** database (free tier)
-2. Copy the **REST URL** and **REST Token**
-3. In Vercel → Project Settings → Environment Variables, add:
+Add **Upstash Redis** from the [Vercel Marketplace](https://vercel.com/marketplace?search=upstash).
+It auto-creates these env vars: `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `KV_REST_API_READ_ONLY_TOKEN`, `KV_URL`, `REDIS_URL`.
+
+Then manually add one more:
 
 | Variable | Value |
 |---|---|
-| `UPSTASH_REDIS_REST_URL` | `https://your-db.upstash.io` |
-| `UPSTASH_REDIS_REST_TOKEN` | `AXxxxxxxxxxxxx...` |
 | `ADMIN_KEY` | Any secret string you choose (e.g. `minha-chave-secreta-123`) |
-
-> **Tip:** You can also add Upstash directly from the [Vercel Marketplace](https://vercel.com/marketplace?search=upstash) — it auto-fills the env vars.
 
 ### 3. Redeploy
 
