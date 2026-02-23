@@ -8,6 +8,7 @@ Birthday party invitation landing page. Theater meets arcade.
 - Tailwind CSS v4
 - Motion (Framer Motion)
 - Upstash Redis (RSVP storage)
+- Resend (confirmation emails)
 - Vercel Serverless Functions
 
 ## Deploy to Vercel
@@ -16,36 +17,48 @@ Birthday party invitation landing page. Theater meets arcade.
 
 Go to [vercel.com/new](https://vercel.com/new) → Import `psg2/level-30-birthday`
 
-### 2. Set up Upstash Redis
+### 2. Set up Integrations
 
 Add **Upstash Redis** from the [Vercel Marketplace](https://vercel.com/marketplace?search=upstash).
-It auto-creates these env vars: `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `KV_REST_API_READ_ONLY_TOKEN`, `KV_URL`, `REDIS_URL`.
+It auto-creates: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `REDIS_URL`.
 
-Then manually add one more:
+### 3. Add Environment Variables
 
 | Variable | Value |
 |---|---|
-| `ADMIN_KEY` | Any secret string you choose (e.g. `minha-chave-secreta-123`) |
+| `ADMIN_KEY` | Any secret string (to view guest list) |
+| `RESEND_API_KEY` | Your key from [resend.com](https://resend.com) |
+| `SITE_URL` | Your deployed URL (e.g. `https://level-30-birthday.vercel.app`) |
 
-### 3. Redeploy
+### 4. Redeploy
 
 After adding env vars, trigger a redeploy from Vercel dashboard.
 
-## Checking RSVPs
+## Features
 
-To see who confirmed:
+### RSVP Flow
+1. Guest clicks "Eu Vou!" → fills name, email, optional message
+2. Data stored in Upstash Redis
+3. Confirmation email sent via Resend with a personal link
+4. Guest can access `/rsvp/{id}` to edit their response or cancel
+
+### Duplicate Prevention
+If the same email tries to RSVP twice, they're redirected to their existing invite page.
+
+### Checking RSVPs (Admin)
 
 ```
-https://your-site.vercel.app/api/rsvp?key=YOUR_ADMIN_KEY
+GET https://your-site.vercel.app/api/rsvp?key=YOUR_ADMIN_KEY
 ```
 
-Returns JSON:
+Returns:
 ```json
 {
-  "count": 5,
+  "total": 10,
+  "confirmed": 8,
+  "cancelled": 2,
   "guests": [
-    { "name": "Maria", "message": "Parabéns! 🎉", "timestamp": "2026-03-01T..." },
-    { "name": "João", "message": "", "timestamp": "2026-02-28T..." }
+    { "id": "abc123", "name": "Maria", "email": "m@x.com", "message": "Parabéns!", "status": "confirmed", ... }
   ]
 }
 ```
@@ -57,4 +70,4 @@ npm install
 npm run dev
 ```
 
-> RSVP form won't work locally unless you create a `.env` file with the Upstash vars.
+> API routes require env vars. Create a `.env` file or use `vercel env pull`.

@@ -1,0 +1,349 @@
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+
+interface RsvpData {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  status: 'confirmed' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
+}
+
+type PageState = 'loading' | 'view' | 'editing' | 'saving' | 'not-found';
+
+export function RsvpPage() {
+  const { id } = useParams<{ id: string }>();
+  const [state, setState] = useState<PageState>('loading');
+  const [rsvp, setRsvp] = useState<RsvpData | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editMessage, setEditMessage] = useState('');
+  const [toast, setToast] = useState('');
+
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/rsvp/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Not found');
+        return res.json();
+      })
+      .then((data: RsvpData) => {
+        setRsvp(data);
+        setEditName(data.name);
+        setEditMessage(data.message);
+        setState('view');
+      })
+      .catch(() => setState('not-found'));
+  }, [id]);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3000);
+  };
+
+  const updateRsvp = async (updates: Partial<Pick<RsvpData, 'name' | 'message' | 'status'>>) => {
+    setState('saving');
+    try {
+      const res = await fetch(`/api/rsvp/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setRsvp(data.entry);
+      setEditName(data.entry.name);
+      setEditMessage(data.entry.message);
+      setState('view');
+
+      if (updates.status === 'confirmed') showToast('Presença re-confirmada! 🎉');
+      else if (updates.status === 'cancelled') showToast('Resposta atualizada 😢');
+      else showToast('Dados atualizados! ✨');
+    } catch {
+      showToast('Erro ao salvar. Tenta de novo!');
+      setState('view');
+    }
+  };
+
+  const handleSaveEdit = () => {
+    if (!editName.trim()) return;
+    updateRsvp({ name: editName.trim(), message: editMessage.trim() });
+  };
+
+  const formatDate = (iso: string) => {
+    return new Date(iso).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  return (
+    <div className="grain-overlay min-h-screen bg-stage-black relative">
+      {/* Background effects */}
+      <div className="absolute top-20 left-1/4 spotlight opacity-20" />
+      <div className="absolute bottom-20 right-1/4 spotlight opacity-15" style={{ animationDelay: '-3s' }} />
+
+      {/* Toast notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-50
+              bg-stage-dark border border-gold/30 px-6 py-3
+              font-mono text-sm text-gold shadow-[0_0_30px_rgba(212,168,67,0.2)]"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="relative z-10 max-w-lg mx-auto px-6 py-16 md:py-24">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <Link to="/" className="inline-block no-underline group">
+            <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">🎭</div>
+            <h1 className="font-display text-3xl md:text-4xl font-bold italic text-gold">
+              Level 30
+            </h1>
+            <p className="font-mono text-cream/30 text-xs tracking-[0.3em] mt-1">PEDRO SERENO</p>
+          </Link>
+        </motion.div>
+
+        {/* Loading */}
+        {state === 'loading' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+              className="text-4xl inline-block mb-4"
+            >
+              🎭
+            </motion.div>
+            <p className="font-mono text-cream/40 text-sm">Carregando seu convite...</p>
+          </motion.div>
+        )}
+
+        {/* Not Found */}
+        {state === 'not-found' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-20"
+          >
+            <div className="text-6xl mb-6">🔍</div>
+            <h2 className="font-display text-3xl text-cream/60 font-bold italic mb-4">
+              Convite Não Encontrado
+            </h2>
+            <p className="font-body text-cream/30 italic mb-8">
+              Esse link parece inválido ou expirou.
+            </p>
+            <Link
+              to="/"
+              className="inline-block px-8 py-3 border border-gold/30 text-gold font-mono text-sm
+                hover:bg-gold/10 transition-all no-underline"
+            >
+              ← Voltar ao Início
+            </Link>
+          </motion.div>
+        )}
+
+        {/* View / Edit RSVP */}
+        {(state === 'view' || state === 'editing' || state === 'saving') && rsvp && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {/* Status badge */}
+            <div className="text-center mb-8">
+              <span className={`inline-block px-4 py-1.5 font-mono text-xs tracking-[0.2em] uppercase border
+                ${rsvp.status === 'confirmed'
+                  ? 'border-neon-cyan/40 text-neon-cyan bg-neon-cyan/5'
+                  : 'border-neon-magenta/40 text-neon-magenta bg-neon-magenta/5'
+                }`}>
+                {rsvp.status === 'confirmed' ? '✓ Presença Confirmada' : '✗ Não Vai'}
+              </span>
+            </div>
+
+            {/* RSVP Card */}
+            <div className="relative border border-gold/20 bg-stage-dark/80 backdrop-blur-sm">
+              {/* Corner decorations */}
+              <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-gold/40" />
+              <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-gold/40" />
+              <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-gold/40" />
+              <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-gold/40" />
+
+              <div className="p-8 md:p-10">
+                <AnimatePresence mode="wait">
+                  {state === 'editing' ? (
+                    /* Edit mode */
+                    <motion.div
+                      key="edit"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <div className="font-mono text-neon-cyan/60 text-xs tracking-[0.3em] uppercase mb-6 text-center">
+                        Editar Convite
+                      </div>
+
+                      <div className="mb-5">
+                        <label className="block font-mono text-xs text-gold/60 tracking-wider mb-2 uppercase">Nome</label>
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="w-full bg-transparent border border-gold/20 text-cream font-body text-base
+                            px-4 py-3 focus:outline-none focus:border-gold/60 transition-all"
+                        />
+                      </div>
+
+                      <div className="mb-6">
+                        <label className="block font-mono text-xs text-gold/60 tracking-wider mb-2 uppercase">Recado</label>
+                        <textarea
+                          value={editMessage}
+                          onChange={(e) => setEditMessage(e.target.value)}
+                          rows={3}
+                          className="w-full bg-transparent border border-gold/20 text-cream font-body text-base
+                            px-4 py-3 resize-none focus:outline-none focus:border-gold/60 transition-all"
+                        />
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleSaveEdit}
+                          className="flex-1 px-6 py-3 border-2 border-gold text-gold font-display text-lg italic font-bold
+                            cursor-pointer hover:bg-gold hover:text-stage-black transition-all"
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditName(rsvp.name);
+                            setEditMessage(rsvp.message);
+                            setState('view');
+                          }}
+                          className="px-6 py-3 border border-cream/15 text-cream/30 font-mono text-sm
+                            cursor-pointer hover:border-cream/30 hover:text-cream/50 transition-all"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    /* View mode */
+                    <motion.div
+                      key="view"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <div className="space-y-6">
+                        <div>
+                          <div className="font-mono text-xs text-gold/40 tracking-wider uppercase mb-1">Nome</div>
+                          <div className="font-display text-3xl text-cream font-bold italic">{rsvp.name}</div>
+                        </div>
+
+                        <div>
+                          <div className="font-mono text-xs text-gold/40 tracking-wider uppercase mb-1">E-mail</div>
+                          <div className="font-body text-cream/60">{rsvp.email}</div>
+                        </div>
+
+                        {rsvp.message && (
+                          <div>
+                            <div className="font-mono text-xs text-gold/40 tracking-wider uppercase mb-1">Recado</div>
+                            <div className="font-body text-cream/60 italic">"{rsvp.message}"</div>
+                          </div>
+                        )}
+
+                        <div className="h-px bg-gradient-to-r from-transparent via-gold/15 to-transparent" />
+
+                        <div className="flex justify-between text-cream/20 font-mono text-[10px] tracking-wider">
+                          <span>Confirmado em {formatDate(rsvp.createdAt)}</span>
+                          {rsvp.updatedAt !== rsvp.createdAt && (
+                            <span>Atualizado em {formatDate(rsvp.updatedAt)}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="mt-8 space-y-3">
+                        <button
+                          onClick={() => setState('editing')}
+                          className="w-full px-6 py-3 border border-gold/20 text-gold/70 font-mono text-sm
+                            cursor-pointer hover:bg-gold/10 hover:text-gold hover:border-gold/40 transition-all"
+                        >
+                          ✏️ Editar Dados
+                        </button>
+
+                        {rsvp.status === 'confirmed' ? (
+                          <button
+                            onClick={() => updateRsvp({ status: 'cancelled' })}
+                            disabled={state === 'saving'}
+                            className="w-full px-6 py-3 border border-neon-magenta/20 text-neon-magenta/60 font-mono text-sm
+                              cursor-pointer hover:bg-neon-magenta/10 hover:text-neon-magenta hover:border-neon-magenta/40
+                              transition-all disabled:opacity-50"
+                          >
+                            😢 Não vou conseguir ir
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => updateRsvp({ status: 'confirmed' })}
+                            disabled={state === 'saving'}
+                            className="w-full px-6 py-3 border-2 border-gold text-gold font-display text-lg italic font-bold
+                              cursor-pointer hover:bg-gold hover:text-stage-black transition-all disabled:opacity-50"
+                          >
+                            🎉 Mudei de ideia, eu vou!
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Event reminder */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-8 border border-gold/10 bg-stage-dark/40 p-6 text-center"
+            >
+              <div className="font-mono text-xs text-gold/40 tracking-[0.3em] uppercase mb-2">Evento</div>
+              <div className="font-display text-xl text-cream italic">Sábado, 14 de Março de 2026</div>
+              <div className="font-mono text-cream/30 text-xs mt-1">Mais detalhes em breve</div>
+            </motion.div>
+
+            {/* Back to main */}
+            <div className="text-center mt-8">
+              <Link
+                to="/"
+                className="font-mono text-xs text-cream/20 hover:text-cream/40 transition-colors no-underline"
+              >
+                ← Voltar ao convite principal
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}

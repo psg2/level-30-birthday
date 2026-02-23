@@ -1,17 +1,24 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
-type RsvpState = 'idle' | 'form' | 'submitting' | 'confirmed' | 'declined';
+type RsvpState = 'idle' | 'form' | 'submitting' | 'confirmed' | 'declined' | 'duplicate';
 
 export function RSVPSection() {
   const [state, setState] = useState<RsvpState>('idle');
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [rsvpId, setRsvpId] = useState('');
+  const [existingId, setExistingId] = useState('');
 
   const handleSubmit = async () => {
     if (!name.trim()) {
       setError('Coloca seu nome aí! 😄');
+      return;
+    }
+    if (!email.trim() || !email.includes('@')) {
+      setError('Preciso do seu e-mail pra enviar a confirmação! 📧');
       return;
     }
 
@@ -22,16 +29,29 @@ export function RSVPSection() {
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), message: message.trim() }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() }),
       });
 
-      if (!res.ok) throw new Error('Erro ao enviar');
+      const data = await res.json();
+
+      if (res.status === 409) {
+        setExistingId(data.existingId);
+        setState('duplicate');
+        return;
+      }
+
+      if (!res.ok) throw new Error(data.error || 'Erro ao enviar');
+
+      setRsvpId(data.id);
       setState('confirmed');
     } catch {
       setError('Ops, algo deu errado. Tenta de novo!');
       setState('form');
     }
   };
+
+  const rsvpUrl = rsvpId ? `${window.location.origin}/rsvp/${rsvpId}` : '';
+  const existingUrl = existingId ? `${window.location.origin}/rsvp/${existingId}` : '';
 
   return (
     <section className="relative py-24 md:py-40 px-6 overflow-hidden">
@@ -97,7 +117,7 @@ export function RSVPSection() {
           </motion.div>
         )}
 
-        {/* === FORM: Collect name + message === */}
+        {/* === FORM: Collect name + email + message === */}
         {(state === 'form' || state === 'submitting') && (
           <motion.div
             key="form"
@@ -107,7 +127,7 @@ export function RSVPSection() {
             transition={{ duration: 0.5 }}
             className="max-w-md mx-auto"
           >
-            <div className="border border-gold/20 bg-stage-dark/80 backdrop-blur-sm p-8 md:p-10">
+            <div className="relative border border-gold/20 bg-stage-dark/80 backdrop-blur-sm p-8 md:p-10">
               {/* Corner decorations */}
               <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-gold/40" />
               <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-gold/40" />
@@ -134,6 +154,27 @@ export function RSVPSection() {
                     focus:outline-none focus:border-gold/60 focus:shadow-[0_0_20px_rgba(212,168,67,0.1)]
                     transition-all duration-300 disabled:opacity-50"
                 />
+              </div>
+
+              {/* Email field */}
+              <div className="mb-5">
+                <label className="block font-mono text-xs text-gold/60 tracking-wider mb-2 uppercase">
+                  Seu E-mail *
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                  placeholder="seu@email.com"
+                  disabled={state === 'submitting'}
+                  className="w-full bg-transparent border border-gold/20 text-cream font-body text-base
+                    px-4 py-3 placeholder:text-cream/20
+                    focus:outline-none focus:border-gold/60 focus:shadow-[0_0_20px_rgba(212,168,67,0.1)]
+                    transition-all duration-300 disabled:opacity-50"
+                />
+                <p className="font-mono text-cream/20 text-[10px] mt-1.5 tracking-wide">
+                  Vamos enviar uma confirmação e o link do seu convite
+                </p>
               </div>
 
               {/* Message field */}
@@ -232,12 +273,48 @@ export function RSVPSection() {
               Valeu, <span className="text-gold">{name}</span>! O elenco está completo.
             </p>
             <p className="font-body text-cream/40 italic">
-              Nos vemos no palco!
+              Enviamos uma confirmação pro seu e-mail 📧
             </p>
             <div className="font-mono text-neon-cyan text-sm tracking-wider mt-6"
               style={{ animation: 'neon-flicker 4s infinite' }}>
               &gt; JOGADOR <span className="uppercase">{name}</span> ENTROU NA PARTY
             </div>
+
+            {/* Link to personal RSVP page */}
+            {rsvpUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="mt-10 max-w-md mx-auto"
+              >
+                <div className="border border-gold/15 bg-stage-dark/60 p-6">
+                  <p className="font-mono text-xs text-gold/50 tracking-wider uppercase mb-3">
+                    Seu link pessoal do convite
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={rsvpUrl}
+                      className="flex-1 bg-transparent border border-gold/10 text-neon-cyan/80 font-mono text-xs
+                        px-3 py-2 focus:outline-none select-all truncate"
+                      onClick={(e) => (e.target as HTMLInputElement).select()}
+                    />
+                    <button
+                      onClick={() => navigator.clipboard.writeText(rsvpUrl)}
+                      className="px-3 py-2 border border-gold/20 text-gold/60 font-mono text-xs
+                        cursor-pointer hover:bg-gold/10 hover:text-gold transition-all shrink-0"
+                    >
+                      Copiar
+                    </button>
+                  </div>
+                  <p className="font-mono text-cream/20 text-[10px] mt-2">
+                    Use este link para alterar sua resposta a qualquer momento
+                  </p>
+                </div>
+              </motion.div>
+            )}
 
             {/* Confetti particles */}
             <div className="relative mt-8 flex justify-center gap-2">
@@ -262,6 +339,40 @@ export function RSVPSection() {
                   }}
                 />
               ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* === DUPLICATE EMAIL === */}
+        {state === 'duplicate' && (
+          <motion.div
+            key="duplicate"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <div className="text-8xl mb-6">📧</div>
+            <h3 className="font-display text-4xl md:text-5xl text-gold font-bold italic mb-4">
+              Você Já Confirmou!
+            </h3>
+            <p className="font-body text-cream/50 italic text-lg mb-6">
+              Esse e-mail já está na lista. Quer atualizar sua resposta?
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href={existingUrl}
+                className="px-8 py-4 border-2 border-gold text-gold font-display text-lg italic font-bold
+                  hover:bg-gold hover:text-stage-black transition-all duration-300 no-underline"
+              >
+                Acessar Meu Convite →
+              </a>
+              <button
+                onClick={() => { setState('idle'); setError(''); setEmail(''); }}
+                className="font-mono text-sm text-cream/40 cursor-pointer hover:text-cream/60 transition-colors"
+              >
+                Usar outro e-mail
+              </button>
             </div>
           </motion.div>
         )}
