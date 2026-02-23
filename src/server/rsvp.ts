@@ -29,9 +29,9 @@ function getClientIp(): string {
 }
 
 async function checkRateLimit(redis: Redis): Promise<boolean> {
+  if (process.env.NODE_ENV === 'development') return true
   const ip = getClientIp()
-  // Skip rate limiting in dev or when IP can't be determined
-  if (ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') return true
+  if (ip === 'unknown') return true
   const key = `birthday:ratelimit:${ip}`
   const current = await redis.incr(key)
   if (current === 1) {
