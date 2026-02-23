@@ -16,6 +16,7 @@ const milestones: Milestone[] = [
   { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
   { age: '21', title: 'Rato de Academia', subtitle: 'Buff de stamina ativado', icon: '🏋️' },
   { age: '25', title: 'Pai de Pet', subtitle: 'Rick e Mel entram na party', icon: '🐕' },
+  { age: '26', title: 'Vício em Board Games', subtitle: 'Tudo começou com Splendor', icon: '🎲' },
   { age: '28', title: 'Amante do Teatro', subtitle: 'Uma nova paixão entra em cena', icon: '🎭' },
   { age: '30', title: 'FASE DO CHEFÃO', subtitle: 'A aventura está apenas começando...', icon: '🔥' },
 ];
