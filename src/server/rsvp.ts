@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeader } from '@tanstack/react-start/server'
 import { Redis } from '@upstash/redis'
 import { Resend } from 'resend'
+import { addAttendeesToEvent, removeAttendeesFromEvent } from './google-calendar'
 
 const getRedis = () =>
   new Redis({
@@ -248,6 +249,17 @@ export const submitRsvp = createServerFn({ method: 'POST' })
       console.error('Email send error:', e)
     }
 
+    // Add to Google Calendar event
+    try {
+      const attendees = [{ email: entry.email, displayName: entry.name }]
+      for (const p of cleanPlusOnes) {
+        if (p.email) attendees.push({ email: p.email, displayName: p.name })
+      }
+      await addAttendeesToEvent(attendees)
+    } catch (e) {
+      console.error('Calendar invite error:', e)
+    }
+
     return { success: true, duplicate: false, id: entry.id } as const
   })
 
@@ -321,6 +333,24 @@ export const updateRsvp = createServerFn({ method: 'POST' })
       })
     } catch (e) {
       console.error('Email send error:', e)
+    }
+
+    // Update Google Calendar attendees based on status change
+    if (data.status !== undefined) {
+      try {
+        const allEmails = [entry.email, ...(entry.plusOnes || []).filter((p) => p.email).map((p) => p.email)]
+        if (entry.status === 'confirmed') {
+          const attendees = [{ email: entry.email, displayName: entry.name }]
+          for (const p of (entry.plusOnes || [])) {
+            if (p.email) attendees.push({ email: p.email, displayName: p.name })
+          }
+          await addAttendeesToEvent(attendees)
+        } else {
+          await removeAttendeesFromEvent(allEmails)
+        }
+      } catch (e) {
+        console.error('Calendar update error:', e)
+      }
     }
 
     return {
