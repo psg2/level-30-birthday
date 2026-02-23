@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { getRequestHeader } from '@tanstack/react-start/server'
 import { Redis } from '@upstash/redis'
 import { Resend } from 'resend'
 
@@ -11,6 +12,31 @@ const getRedis = () =>
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 const RSVP_IDS_KEY = 'birthday:rsvp_ids'
+const RATE_LIMIT_MAX = 5 // max submissions per window
+const RATE_LIMIT_WINDOW = 3600 // 1 hour in seconds
+
+function getClientIp(): string {
+  try {
+    const forwarded = getRequestHeader('x-forwarded-for')
+    if (forwarded) return forwarded.split(',')[0]!.trim()
+    const realIp = getRequestHeader('x-real-ip')
+    if (realIp) return realIp
+    return 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
+
+async function checkRateLimit(redis: Redis): Promise<boolean> {
+  const ip = getClientIp()
+  if (ip === 'unknown') return true // allow if can't determine IP (dev mode)
+  const key = `birthday:ratelimit:${ip}`
+  const current = await redis.incr(key)
+  if (current === 1) {
+    await redis.expire(key, RATE_LIMIT_WINDOW)
+  }
+  return current <= RATE_LIMIT_MAX
+}
 
 export interface RsvpEntry {
   id: string
@@ -113,10 +139,19 @@ function buildUpdateEmail(entry: RsvpEntry, siteUrl: string): string {
 // ── Server Functions ────────────────────────────────────────────────────────
 
 export const submitRsvp = createServerFn({ method: 'POST' })
-  .inputValidator((data: { name: string; email: string; message: string }) => data)
+  .inputValidator((data: { name: string; email: string; message: string; website?: string }) => data)
   .handler(async ({ data }) => {
     const redis = getRedis()
-    const { name, email, message } = data
+    const { name, email, message, website } = data
+
+    // Honeypot check — bots fill this invisible field; silently fake success
+    if (website) {
+      return { success: true, duplicate: false, id: 'ok' } as const
+    }
+
+    // Rate limiting
+    const allowed = await checkRateLimit(redis)
+    if (!allowed) throw new Error('Muitas tentativas. Tente novamente em breve.')
 
     if (!name || name.trim().length === 0) throw new Error('Nome é obrigatório')
     if (!email || !email.includes('@')) throw new Error('E-mail inválido')
@@ -185,6 +220,11 @@ export const updateRsvp = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }): Promise<RsvpPublic> => {
     const redis = getRedis()
+
+    // Rate limiting on updates too
+    const allowed = await checkRateLimit(redis)
+    if (!allowed) throw new Error('Muitas tentativas. Tente novamente em breve.')
+
     const raw = await redis.get<string>(`birthday:rsvp:${data.id}`)
     if (!raw) throw new Error('RSVP não encontrado')
 

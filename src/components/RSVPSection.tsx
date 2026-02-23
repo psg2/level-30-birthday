@@ -12,6 +12,7 @@ export function RSVPSection() {
   const [error, setError] = useState('');
   const [rsvpId, setRsvpId] = useState('');
   const [existingId, setExistingId] = useState('');
+  const [website, setWebsite] = useState(''); // honeypot
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -28,7 +29,7 @@ export function RSVPSection() {
 
     try {
       const result = await submitRsvp({
-        data: { name: name.trim(), email: email.trim(), message: message.trim() },
+        data: { name: name.trim(), email: email.trim(), message: message.trim(), website },
       });
 
       if (result.duplicate) {
@@ -187,6 +188,21 @@ export function RSVPSection() {
                     px-4 py-3 placeholder:text-cream/20 resize-none
                     focus:outline-none focus:border-gold/60 focus:shadow-[0_0_20px_rgba(212,168,67,0.1)]
                     transition-all duration-300 disabled:opacity-50"
+                />
+              </div>
+
+              {/* Honeypot — invisible to humans, bots fill it */}
+              <div aria-hidden="true" className="absolute opacity-0 -z-10 h-0 overflow-hidden pointer-events-none"
+                style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+                <label htmlFor="website">Website</label>
+                <input
+                  type="text"
+                  id="website"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
                 />
               </div>
 
