@@ -13,7 +13,7 @@ const stats: Stat[] = [
   { label: 'DEV', value: 95, maxValue: 100, color: '#00F5D4' },
   { label: 'GAM', value: 90, maxValue: 100, color: '#F72585' },
   { label: 'FIT', value: 75, maxValue: 100, color: '#7B61FF' },
-  { label: 'ECO', value: 99, maxValue: 100, color: '#D4A843' },
+  { label: 'GAS', value: 92, maxValue: 100, color: '#D4A843' },
   { label: 'SAB', value: 30, maxValue: 100, color: '#E8C96A' },
 ];
 
@@ -21,7 +21,7 @@ const traits = [
   { icon: '🎮', label: 'Gamer', desc: 'Digital e de mesa — RPG, strategy, você escolhe' },
   { icon: '🏋️', label: 'Rato de Academia', desc: 'Academia · Funcional · Corrida' },
   { icon: '💻', label: 'Desenvolvedor', desc: 'Escreve <s>código</s> prompts' },
-  { icon: '🏷️', label: 'Mestre das Promoções', desc: 'Fissurado em descontos' },
+  { icon: '🍰', label: 'Foodie', desc: 'Viciado em comida e sobremesas novas' },
   { icon: '🎭', label: 'Amante do Teatro', desc: 'Peregrino semanal das peças' },
   { icon: '🐕', label: 'Pai de Pet', desc: '🐶 Rick · 🍯 Mel' },
 ];
