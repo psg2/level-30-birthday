@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
-import { listRsvps } from '@/server/rsvp'
+import { listRsvps, deleteRsvp } from '@/server/rsvp'
 import type { RsvpEntry } from '@/server/rsvp'
 
 type ViewState = 'auth' | 'loading' | 'ready' | 'error'
@@ -40,6 +40,18 @@ export function AdminPage() {
     setAuthError('')
     if (!key.trim()) { setAuthError('Digite a chave'); return }
     loadGuests(key.trim())
+  }
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Deletar RSVP de "${name}"? Isso libera o e-mail para novo cadastro.`)) return
+    const adminKey = sessionStorage.getItem('admin_key')
+    if (!adminKey) return
+    try {
+      await deleteRsvp({ data: { id, key: adminKey } })
+      loadGuests(adminKey)
+    } catch {
+      alert('Erro ao deletar')
+    }
   }
 
   const filteredGuests = guests.filter((g) => {
@@ -300,6 +312,14 @@ export function AdminPage() {
                           >
                             Ver →
                           </a>
+                          <button
+                            onClick={() => handleDelete(guest.id, guest.name)}
+                            className="font-mono text-xs text-cream/15 border border-cream/10 px-2.5 py-1
+                              hover:text-neon-magenta hover:border-neon-magenta/40 hover:bg-neon-magenta/5
+                              transition-all cursor-pointer"
+                          >
+                            ✕
+                          </button>
                         </div>
                       </div>
                     </motion.div>

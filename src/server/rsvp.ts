@@ -387,3 +387,31 @@ export const listRsvps = createServerFn({ method: 'GET' })
 
     return { total: entries.length, confirmed: confirmed.length, cancelled: cancelled.length, guests: entries }
   })
+
+export const deleteRsvp = createServerFn({ method: 'POST' })
+  .inputValidator((data: { id: string; key: string }) => data)
+  .handler(async ({ data }) => {
+    const adminKey = process.env.ADMIN_KEY
+    if (!adminKey || data.key !== adminKey) throw new Error('Não autorizado')
+
+    const redis = getRedis()
+    const raw = await redis.get<string>(`birthday:rsvp:${data.id}`)
+    if (!raw) throw new Error('RSVP não encontrado')
+
+    const entry: RsvpEntry = typeof raw === 'string' ? JSON.parse(raw) : raw
+
+    // Remove all redis keys
+    await redis.del(`birthday:rsvp:${data.id}`)
+    await redis.del(`birthday:email:${entry.email}`)
+    await redis.srem(RSVP_IDS_KEY, data.id)
+
+    // Remove from Google Calendar
+    try {
+      const allEmails = [entry.email, ...(entry.plusOnes || []).filter((p) => p.email).map((p) => p.email)]
+      await removeAttendeesFromEvent(allEmails)
+    } catch (e) {
+      console.error('Calendar remove error:', e)
+    }
+
+    return { success: true }
+  })
