@@ -30,7 +30,8 @@ function getClientIp(): string {
 
 async function checkRateLimit(redis: Redis): Promise<boolean> {
   const ip = getClientIp()
-  if (ip === 'unknown') return true // allow if can't determine IP (dev mode)
+  // Skip rate limiting in dev or when IP can't be determined
+  if (ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') return true
   const key = `birthday:ratelimit:${ip}`
   const current = await redis.incr(key)
   if (current === 1) {
@@ -339,6 +340,7 @@ export const updateRsvp = createServerFn({ method: 'POST' })
     if (data.status !== undefined) {
       try {
         const allEmails = [entry.email, ...(entry.plusOnes || []).filter((p) => p.email).map((p) => p.email)]
+        console.log('Calendar update:', { newStatus: entry.status, emails: allEmails })
         if (entry.status === 'confirmed') {
           const attendees = [{ email: entry.email, displayName: entry.name }]
           for (const p of (entry.plusOnes || [])) {
