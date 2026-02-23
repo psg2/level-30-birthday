@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { submitRsvp } from '@/server/rsvp';
 
 type RsvpState = 'idle' | 'form' | 'submitting' | 'confirmed' | 'declined' | 'duplicate';
 
@@ -26,23 +27,17 @@ export function RSVPSection() {
     setState('submitting');
 
     try {
-      const res = await fetch('/api/rsvp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() }),
+      const result = await submitRsvp({
+        data: { name: name.trim(), email: email.trim(), message: message.trim() },
       });
 
-      const data = await res.json();
-
-      if (res.status === 409) {
-        setExistingId(data.existingId);
+      if (result.duplicate) {
+        setExistingId(result.existingId!);
         setState('duplicate');
         return;
       }
 
-      if (!res.ok) throw new Error(data.error || 'Erro ao enviar');
-
-      setRsvpId(data.id);
+      setRsvpId(result.id!);
       setState('confirmed');
     } catch {
       setError('Ops, algo deu errado. Tenta de novo!');

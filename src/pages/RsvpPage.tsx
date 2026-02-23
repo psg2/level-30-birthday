@@ -1,35 +1,23 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'motion/react';
-
-interface RsvpData {
-  id: string;
-  name: string;
-  email: string;
-  message: string;
-  status: 'confirmed' | 'cancelled';
-  createdAt: string;
-  updatedAt: string;
-}
+import { getRsvp, updateRsvp as updateRsvpFn } from '@/server/rsvp';
+import type { RsvpPublic } from '@/server/rsvp';
 
 type PageState = 'loading' | 'view' | 'editing' | 'saving' | 'not-found';
 
-export function RsvpPage() {
-  const { id } = useParams<{ id: string }>();
+export function RsvpPage({ id }: { id: string }) {
   const [state, setState] = useState<PageState>('loading');
-  const [rsvp, setRsvp] = useState<RsvpData | null>(null);
+  const [rsvp, setRsvp] = useState<RsvpPublic | null>(null);
   const [editName, setEditName] = useState('');
   const [editMessage, setEditMessage] = useState('');
   const [toast, setToast] = useState('');
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/rsvp/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Not found');
-        return res.json();
-      })
-      .then((data: RsvpData) => {
+    getRsvp({ data: { id } })
+      .then((data) => {
+        if (!data) { setState('not-found'); return; }
         setRsvp(data);
         setEditName(data.name);
         setEditMessage(data.message);
@@ -43,20 +31,14 @@ export function RsvpPage() {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const updateRsvp = async (updates: Partial<Pick<RsvpData, 'name' | 'message' | 'status'>>) => {
+  const doUpdate = async (updates: Partial<Pick<RsvpPublic, 'name' | 'message' | 'status'>>) => {
     setState('saving');
     try {
-      const res = await fetch(`/api/rsvp/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const entry = await updateRsvpFn({ data: { id, ...updates } });
 
-      setRsvp(data.entry);
-      setEditName(data.entry.name);
-      setEditMessage(data.entry.message);
+      setRsvp(entry);
+      setEditName(entry.name);
+      setEditMessage(entry.message);
       setState('view');
 
       if (updates.status === 'confirmed') showToast('Presença re-confirmada! 🎉');
@@ -70,7 +52,7 @@ export function RsvpPage() {
 
   const handleSaveEdit = () => {
     if (!editName.trim()) return;
-    updateRsvp({ name: editName.trim(), message: editMessage.trim() });
+    doUpdate({ name: editName.trim(), message: editMessage.trim() });
   };
 
   const formatDate = (iso: string) => {
@@ -295,7 +277,7 @@ export function RsvpPage() {
 
                         {rsvp.status === 'confirmed' ? (
                           <button
-                            onClick={() => updateRsvp({ status: 'cancelled' })}
+                            onClick={() => doUpdate({ status: 'cancelled' })}
                             disabled={state === 'saving'}
                             className="w-full px-6 py-3 border border-neon-magenta/20 text-neon-magenta/60 font-mono text-sm
                               cursor-pointer hover:bg-neon-magenta/10 hover:text-neon-magenta hover:border-neon-magenta/40
@@ -305,7 +287,7 @@ export function RsvpPage() {
                           </button>
                         ) : (
                           <button
-                            onClick={() => updateRsvp({ status: 'confirmed' })}
+                            onClick={() => doUpdate({ status: 'confirmed' })}
                             disabled={state === 'saving'}
                             className="w-full px-6 py-3 border-2 border-gold text-gold font-display text-lg italic font-bold
                               cursor-pointer hover:bg-gold hover:text-stage-black transition-all disabled:opacity-50"
