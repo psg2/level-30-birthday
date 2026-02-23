@@ -23,7 +23,7 @@ const traits = [
   { icon: '🏋️', label: 'Rato de Academia', desc: 'Academia · Funcional · Corrida' },
   { icon: '💻', label: 'Desenvolvedor', desc: 'Escreve código, entrega produtos' },
   { icon: '🎭', label: 'Amante do Teatro', desc: 'Peregrino semanal das peças' },
-  { icon: '🐕', label: 'Pai de Pet', desc: 'Um Shih Tzu e um Caramelo' },
+  { icon: '🐕', label: 'Pai de Pet', desc: '🐶 Rick (Shih Tzu) · 🍯 Mel (Caramelo)' },
 ];
 
 function PixelBar({ value, maxValue, color, delay }: { value: number; maxValue: number; color: string; delay: number }) {
