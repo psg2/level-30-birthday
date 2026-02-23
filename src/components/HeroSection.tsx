@@ -5,9 +5,9 @@ const partyDate = new Date('2026-03-14T20:00:00');
 
 function CountdownUnit({ value, label }: { value: number; label: string; }) {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center min-w-0">
       <div className="relative">
-        <div className="font-mono text-4xl md:text-6xl text-neon-cyan font-bold tracking-wider"
+        <div className="font-mono text-3xl sm:text-4xl md:text-6xl text-neon-cyan font-bold tracking-wider"
           style={{
             textShadow: '0 0 10px rgba(0, 245, 212, 0.5), 0 0 30px rgba(0, 245, 212, 0.2)',
           }}>
@@ -18,7 +18,7 @@ function CountdownUnit({ value, label }: { value: number; label: string; }) {
           <div className="w-full h-px bg-neon-cyan/50" style={{ animation: 'scanline 3s linear infinite' }} />
         </div>
       </div>
-      <div className="font-mono text-xs text-gold/60 tracking-[0.3em] uppercase mt-2">{label}</div>
+      <div className="font-mono text-[10px] sm:text-xs text-gold/60 tracking-[0.2em] sm:tracking-[0.3em] uppercase mt-1 sm:mt-2">{label}</div>
     </div>
   );
 }
@@ -137,14 +137,14 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2 }}
-          className="mt-12 flex gap-6 md:gap-10 justify-center"
+          className="mt-12 flex gap-3 sm:gap-6 md:gap-10 justify-center px-4"
         >
           <CountdownUnit value={timeLeft.days} label="Dias" />
-          <div className="font-mono text-gold/30 text-4xl md:text-6xl self-start">:</div>
+          <div className="font-mono text-gold/30 text-3xl sm:text-4xl md:text-6xl self-start">:</div>
           <CountdownUnit value={timeLeft.hours} label="Horas" />
-          <div className="font-mono text-gold/30 text-4xl md:text-6xl self-start">:</div>
+          <div className="font-mono text-gold/30 text-3xl sm:text-4xl md:text-6xl self-start">:</div>
           <CountdownUnit value={timeLeft.minutes} label="Min" />
-          <div className="font-mono text-gold/30 text-4xl md:text-6xl self-start">:</div>
+          <div className="font-mono text-gold/30 text-3xl sm:text-4xl md:text-6xl self-start">:</div>
           <CountdownUnit value={timeLeft.seconds} label="Seg" />
         </motion.div>
       </motion.div>
