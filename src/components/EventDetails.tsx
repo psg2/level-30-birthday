@@ -5,13 +5,13 @@ const details = [
     icon: '📅',
     label: 'Quando',
     value: 'Sábado, 14 de Março de 2026',
-    sub: 'Mais detalhes em breve',
+    sub: 'A partir das 17h',
   },
   {
     icon: '📍',
     label: 'Onde',
-    value: 'Local a definir',
-    sub: 'Fique ligado nas coordenadas',
+    value: 'R. Morgado de Mateus, 352',
+    sub: 'Salão de Festas · Vila Mariana, SP · 04015-050',
   },
   {
     icon: '🎪',
