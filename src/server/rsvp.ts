@@ -148,7 +148,7 @@ export const submitRsvp = createServerFn({ method: 'POST' })
     try {
       const resend = getResend()
       await resend.emails.send({
-        from: 'Level 30 <onboarding@resend.dev>',
+        from: 'Level 30 <pedro@sereno.dev.br>',
         to: entry.email,
         subject: '🎭 Presença Confirmada — Level 30 do Pedro!',
         html: buildConfirmationEmail(entry, siteUrl),
@@ -201,7 +201,7 @@ export const updateRsvp = createServerFn({ method: 'POST' })
     try {
       const resend = getResend()
       await resend.emails.send({
-        from: 'Level 30 <onboarding@resend.dev>',
+        from: 'Level 30 <pedro@sereno.dev.br>',
         to: entry.email,
         subject:
           entry.status === 'confirmed'
