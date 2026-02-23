@@ -340,7 +340,6 @@ export const updateRsvp = createServerFn({ method: 'POST' })
     if (data.status !== undefined) {
       try {
         const allEmails = [entry.email, ...(entry.plusOnes || []).filter((p) => p.email).map((p) => p.email)]
-        console.log('Calendar update:', { newStatus: entry.status, emails: allEmails })
         if (entry.status === 'confirmed') {
           const attendees = [{ email: entry.email, displayName: entry.name }]
           for (const p of (entry.plusOnes || [])) {
