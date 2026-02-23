@@ -21,9 +21,9 @@ const traits = [
   { icon: '🎮', label: 'Gamer', desc: 'Desbrava dungeons nas noites livres' },
   { icon: '🎲', label: 'Boardgamer', desc: 'Mestre das estratégias de mesa' },
   { icon: '🏋️', label: 'Rato de Academia', desc: 'Academia · Funcional · Corrida' },
-  { icon: '💻', label: 'Desenvolvedor', desc: 'Escreve código, entrega produtos' },
+  { icon: '💻', label: 'Desenvolvedor', desc: 'Escreve <s>código</s> prompts' },
   { icon: '🎭', label: 'Amante do Teatro', desc: 'Peregrino semanal das peças' },
-  { icon: '🐕', label: 'Pai de Pet', desc: '🐶 Rick (Shih Tzu) · 🍯 Mel (Caramelo)' },
+  { icon: '🐕', label: 'Pai de Pet', desc: '🐶 Rick · 🍯 Mel' },
 ];
 
 function PixelBar({ value, maxValue, color, delay }: { value: number; maxValue: number; color: string; delay: number }) {
@@ -31,7 +31,7 @@ function PixelBar({ value, maxValue, color, delay }: { value: number; maxValue: 
   const filledBlocks = Math.round((value / maxValue) * totalBlocks);
 
   return (
-    <div className="flex gap-[3px]">
+    <div className="flex gap-[2px] sm:gap-[3px]">
       {Array.from({ length: totalBlocks }).map((_, i) => (
         <motion.div
           key={i}
@@ -39,7 +39,7 @@ function PixelBar({ value, maxValue, color, delay }: { value: number; maxValue: 
           whileInView={{ opacity: 1, scaleY: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.05, delay: delay + i * 0.03 }}
-          className="w-2.5 md:w-3 h-5 md:h-6 rounded-sm"
+          className="w-2 sm:w-2.5 md:w-3 h-4 sm:h-5 md:h-6 rounded-sm"
           style={{
             backgroundColor: i < filledBlocks ? color : 'rgba(255,255,255,0.05)',
             boxShadow: i < filledBlocks ? `0 0 8px ${color}40` : 'none',
@@ -83,7 +83,7 @@ export function CharacterSheet() {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="max-w-3xl mx-auto"
       >
-        <div className="relative border border-gold/20 bg-stage-dark/80 backdrop-blur-sm p-8 md:p-12"
+        <div className="relative border border-gold/20 bg-stage-dark/80 backdrop-blur-sm p-5 sm:p-8 md:p-12"
           style={{ animation: isInView ? 'pulse-glow 4s ease-in-out infinite' : 'none' }}>
           {/* Corner decorations */}
           <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-gold/60" />
@@ -92,31 +92,34 @@ export function CharacterSheet() {
           <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-gold/60" />
 
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-start gap-6 mb-10">
-            <div className="flex-1">
+          <div className="flex items-start justify-between gap-4 mb-10">
+            <div className="min-w-0">
               <div className="font-mono text-neon-cyan text-xs tracking-[0.3em] mb-1">JOGADOR UM</div>
-              <h3 className="font-display text-4xl md:text-5xl font-bold text-cream italic">
+              <h3 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-cream italic">
                 Pedro Sereno
               </h3>
-              <div className="font-mono text-gold/60 text-xs mt-2 tracking-wider">
-                CLASSE: Dev / Artista / Pai de Pet &nbsp;|&nbsp; NVL: 29 → 30
+              <div className="font-mono text-gold/60 text-[10px] sm:text-xs mt-2 tracking-wider leading-relaxed">
+                <span>CLASSE: Dev / Artista / Pai de Pet</span>
+                <br className="sm:hidden" />
+                <span className="hidden sm:inline">&nbsp;|&nbsp;</span>
+                <span>NVL: 29 → 30</span>
               </div>
             </div>
-            <div className="font-mono text-right">
-              <div className="text-neon-magenta text-3xl font-bold" style={{
+            <div className="font-mono text-right shrink-0">
+              <div className="text-neon-magenta text-xl sm:text-3xl font-bold" style={{
                 textShadow: '0 0 10px rgba(247, 37, 133, 0.5)',
               }}>XP MAX</div>
-              <div className="text-cream/40 text-xs">LEVEL UP IMINENTE</div>
+              <div className="text-cream/40 text-[10px] sm:text-xs">LEVEL UP IMINENTE</div>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="space-y-4 mb-10">
+          <div className="space-y-3 sm:space-y-4 mb-10">
             {stats.map((stat, i) => (
-              <div key={stat.label} className="flex items-center gap-4">
-                <div className="font-mono text-sm text-cream/60 w-10 text-right">{stat.label}</div>
+              <div key={stat.label} className="flex items-center gap-2 sm:gap-4">
+                <div className="font-mono text-xs sm:text-sm text-cream/60 w-8 sm:w-10 text-right shrink-0">{stat.label}</div>
                 <PixelBar value={stat.value} maxValue={stat.maxValue} color={stat.color} delay={0.1 * i} />
-                <div className="font-mono text-xs" style={{ color: stat.color }}>
+                <div className="font-mono text-xs shrink-0 w-6 text-right" style={{ color: stat.color }}>
                   {stat.value}
                 </div>
               </div>
@@ -127,7 +130,7 @@ export function CharacterSheet() {
           <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mb-10" />
 
           {/* Traits grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
             {traits.map((trait, i) => (
               <motion.div
                 key={trait.label}
@@ -140,7 +143,7 @@ export function CharacterSheet() {
               >
                 <div className="text-2xl mb-2">{trait.icon}</div>
                 <div className="font-mono text-sm text-gold font-bold">{trait.label}</div>
-                <div className="font-body text-cream/40 text-xs mt-1 italic">{trait.desc}</div>
+                <div className="font-body text-cream/40 text-xs mt-1 italic" dangerouslySetInnerHTML={{ __html: trait.desc }} />
               </motion.div>
             ))}
           </div>
