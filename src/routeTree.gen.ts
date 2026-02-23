@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RsvpIdRouteImport } from './routes/rsvp/$id'
+import { Route as ApiGuestsRouteImport } from './routes/api/guests'
+import { Route as ApiOauthStartRouteImport } from './routes/api/oauth/start'
+import { Route as ApiOauthCallbackRouteImport } from './routes/api/oauth/callback'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -28,35 +31,81 @@ const RsvpIdRoute = RsvpIdRouteImport.update({
   path: '/rsvp/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGuestsRoute = ApiGuestsRouteImport.update({
+  id: '/api/guests',
+  path: '/api/guests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOauthStartRoute = ApiOauthStartRouteImport.update({
+  id: '/api/oauth/start',
+  path: '/api/oauth/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOauthCallbackRoute = ApiOauthCallbackRouteImport.update({
+  id: '/api/oauth/callback',
+  path: '/api/oauth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/api/guests': typeof ApiGuestsRoute
   '/rsvp/$id': typeof RsvpIdRoute
+  '/api/oauth/callback': typeof ApiOauthCallbackRoute
+  '/api/oauth/start': typeof ApiOauthStartRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/api/guests': typeof ApiGuestsRoute
   '/rsvp/$id': typeof RsvpIdRoute
+  '/api/oauth/callback': typeof ApiOauthCallbackRoute
+  '/api/oauth/start': typeof ApiOauthStartRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/api/guests': typeof ApiGuestsRoute
   '/rsvp/$id': typeof RsvpIdRoute
+  '/api/oauth/callback': typeof ApiOauthCallbackRoute
+  '/api/oauth/start': typeof ApiOauthStartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/rsvp/$id'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/api/guests'
+    | '/rsvp/$id'
+    | '/api/oauth/callback'
+    | '/api/oauth/start'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/rsvp/$id'
-  id: '__root__' | '/' | '/admin' | '/rsvp/$id'
+  to:
+    | '/'
+    | '/admin'
+    | '/api/guests'
+    | '/rsvp/$id'
+    | '/api/oauth/callback'
+    | '/api/oauth/start'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/api/guests'
+    | '/rsvp/$id'
+    | '/api/oauth/callback'
+    | '/api/oauth/start'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  ApiGuestsRoute: typeof ApiGuestsRoute
   RsvpIdRoute: typeof RsvpIdRoute
+  ApiOauthCallbackRoute: typeof ApiOauthCallbackRoute
+  ApiOauthStartRoute: typeof ApiOauthStartRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +131,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RsvpIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/guests': {
+      id: '/api/guests'
+      path: '/api/guests'
+      fullPath: '/api/guests'
+      preLoaderRoute: typeof ApiGuestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/oauth/start': {
+      id: '/api/oauth/start'
+      path: '/api/oauth/start'
+      fullPath: '/api/oauth/start'
+      preLoaderRoute: typeof ApiOauthStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/oauth/callback': {
+      id: '/api/oauth/callback'
+      path: '/api/oauth/callback'
+      fullPath: '/api/oauth/callback'
+      preLoaderRoute: typeof ApiOauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  ApiGuestsRoute: ApiGuestsRoute,
   RsvpIdRoute: RsvpIdRoute,
+  ApiOauthCallbackRoute: ApiOauthCallbackRoute,
+  ApiOauthStartRoute: ApiOauthStartRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

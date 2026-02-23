@@ -1,13 +1,13 @@
-import { defineEventHandler, getQuery } from 'vinxi/http'
+import { createFileRoute } from '@tanstack/react-router'
 import { Redis } from '@upstash/redis'
 
-export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-  const key = (query.key as string) || ''
+async function handleGet(ctx: { request: Request }): Promise<Response> {
+  const url = new URL(ctx.request.url)
+  const key = url.searchParams.get('key') || ''
   const adminKey = process.env.ADMIN_KEY
 
   if (!adminKey || key !== adminKey) {
-    return { error: 'Não autorizado' }
+    return Response.json({ error: 'Não autorizado' }, { status: 401 })
   }
 
   const redis = new Redis({
@@ -34,10 +34,18 @@ export default defineEventHandler(async (event) => {
   const confirmed = entries.filter((e: { status: string }) => e.status === 'confirmed')
   const cancelled = entries.filter((e: { status: string }) => e.status === 'cancelled')
 
-  return {
+  return Response.json({
     total: entries.length,
     confirmed: confirmed.length,
     cancelled: cancelled.length,
     guests: entries,
-  }
+  })
+}
+
+export const Route = createFileRoute('/api/guests')({
+  server: {
+    handlers: {
+      GET: handleGet,
+    },
+  },
 })
