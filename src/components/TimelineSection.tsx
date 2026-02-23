@@ -9,12 +9,14 @@ interface Milestone {
 
 const milestones: Milestone[] = [
   { age: '0', title: 'Jogador Entrou no Game', subtitle: 'Um Pedro selvagem apareceu!', icon: '👶' },
-  { age: '5', title: 'Tutorial Completo', subtitle: 'Primeiros jogos, primeiras histórias', icon: '🎮' },
-  { age: '10', title: 'Missões Secundárias Liberadas', subtitle: 'Esportes, artes e aventuras', icon: '⚡' },
-  { age: '15', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
-  { age: '20', title: 'Guilda Formada', subtitle: 'Construindo amizades e puxando ferro', icon: '🤝' },
-  { age: '25', title: 'Conquista Rara Desbloqueada', subtitle: 'Entusiasta do teatro entra na party', icon: '🎭' },
-  { age: '30', title: 'FASE DO CHEFÃO', subtitle: 'A aventura está apenas começando...', icon: '🏆' },
+  { age: '5', title: 'Primeira Quest: Nintendo', subtitle: 'O vício em jogos começa aqui', icon: '🎮' },
+  { age: '10', title: 'Ragnarök Online', subtitle: 'Novice → Thief → Assassin', icon: '⚔️' },
+  { age: '12', title: 'Anime & Cosplay', subtitle: 'Desbloqueou skill: cultura otaku', icon: '⚡' },
+  { age: '14', title: 'Jogador de LoL', subtitle: 'Ranked, tilts e pentakills', icon: '🏆' },
+  { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
+  { age: '21', title: 'Rato de Academia', subtitle: 'Buff de stamina ativado', icon: '🏋️' },
+  { age: '28', title: 'Amante do Teatro', subtitle: 'Uma nova paixão entra em cena', icon: '🎭' },
+  { age: '30', title: 'FASE DO CHEFÃO', subtitle: 'A aventura está apenas começando...', icon: '🔥' },
 ];
 
 export function TimelineSection() {
