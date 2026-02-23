@@ -4,17 +4,18 @@ import { useRef } from 'react';
 
 interface Stat {
   label: string;
+  fullName: string;
   value: number;
   maxValue: number;
   color: string;
 }
 
 const stats: Stat[] = [
-  { label: 'DEV', value: 95, maxValue: 100, color: '#00F5D4' },
-  { label: 'GAM', value: 90, maxValue: 100, color: '#F72585' },
-  { label: 'FIT', value: 75, maxValue: 100, color: '#7B61FF' },
-  { label: 'GAS', value: 92, maxValue: 100, color: '#D4A843' },
-  { label: 'SAB', value: 30, maxValue: 100, color: '#E8C96A' },
+  { label: 'DEV', fullName: 'Desenvolvimento', value: 95, maxValue: 100, color: '#00F5D4' },
+  { label: 'GAM', fullName: 'Gaming', value: 90, maxValue: 100, color: '#F72585' },
+  { label: 'FIT', fullName: 'Fitness', value: 75, maxValue: 100, color: '#7B61FF' },
+  { label: 'GAS', fullName: 'Gastronomia', value: 92, maxValue: 100, color: '#D4A843' },
+  { label: 'SAB', fullName: 'Sabedoria (chega aos 30 e começa do zero)', value: 30, maxValue: 100, color: '#E8C96A' },
 ];
 
 const traits = [
@@ -116,8 +117,19 @@ export function CharacterSheet() {
           {/* Stats */}
           <div className="space-y-3 sm:space-y-4 mb-10">
             {stats.map((stat, i) => (
-              <div key={stat.label} className="flex items-center gap-2 sm:gap-4">
-                <div className="font-mono text-xs sm:text-sm text-cream/60 w-8 sm:w-10 text-right shrink-0">{stat.label}</div>
+              <div key={stat.label} className="flex items-center gap-2 sm:gap-4 group/stat relative">
+                <div className="font-mono text-xs sm:text-sm text-cream/60 w-8 sm:w-10 text-right shrink-0 cursor-help relative">
+                  {stat.label}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5
+                    bg-stage-dark border border-gold/30 whitespace-nowrap
+                    opacity-0 group-hover/stat:opacity-100 pointer-events-none
+                    transition-opacity duration-200 z-20">
+                    <div className="font-mono text-[10px] sm:text-xs text-gold tracking-wider">{stat.fullName}</div>
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0
+                      border-l-4 border-r-4 border-t-4
+                      border-l-transparent border-r-transparent border-t-gold/30" />
+                  </div>
+                </div>
                 <PixelBar value={stat.value} maxValue={stat.maxValue} color={stat.color} delay={0.1 * i} />
                 <div className="font-mono text-xs shrink-0 w-6 text-right" style={{ color: stat.color }}>
                   {stat.value}
