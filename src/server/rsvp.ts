@@ -137,7 +137,7 @@ function buildConfirmationEmail(entry: RsvpEntry, siteUrl: string): string {
       <a href="${rsvpUrl}" style="display:inline-block;padding:12px 32px;border:2px solid #D4A843;color:#D4A843;text-decoration:none;font-size:14px;font-style:italic;font-weight:bold;letter-spacing:1px;">Meu Convite →</a>
     </div>
     <div style="border-top:1px solid #D4A84320;padding:24px 0 0;text-align:center;">
-      <p style="color:#F5E6D315;font-size:11px;letter-spacing:2px;font-family:monospace;margin:0;">FEITO COM ♥ PARA AS MELHORES PESSOAS</p>
+      <p style="color:#F5E6D360;font-size:11px;letter-spacing:2px;font-family:monospace;margin:0;">FEITO COM ♥ PARA AS MELHORES PESSOAS</p>
     </div>
   </div>
 </body>
@@ -170,7 +170,7 @@ function buildUpdateEmail(entry: RsvpEntry, siteUrl: string): string {
       <a href="${rsvpUrl}" style="display:inline-block;padding:12px 32px;border:2px solid #D4A843;color:#D4A843;text-decoration:none;font-size:14px;font-style:italic;font-weight:bold;">Meu Convite →</a>
     </div>
     <div style="border-top:1px solid #D4A84320;padding:24px 0 0;text-align:center;">
-      <p style="color:#F5E6D315;font-size:11px;letter-spacing:2px;font-family:monospace;margin:0;">FEITO COM ♥ PARA AS MELHORES PESSOAS</p>
+      <p style="color:#F5E6D360;font-size:11px;letter-spacing:2px;font-family:monospace;margin:0;">FEITO COM ♥ PARA AS MELHORES PESSOAS</p>
     </div>
   </div>
 </body>
