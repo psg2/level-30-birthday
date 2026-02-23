@@ -12,7 +12,7 @@ interface Stat {
 const stats: Stat[] = [
   { label: 'DEV', value: 95, maxValue: 100, color: '#00F5D4' },
   { label: 'FOR', value: 82, maxValue: 100, color: '#F72585' },
-  { label: 'ART', value: 90, maxValue: 100, color: '#7B61FF' },
+  { label: 'FIT', value: 75, maxValue: 100, color: '#7B61FF' },
   { label: 'CAR', value: 88, maxValue: 100, color: '#D4A843' },
   { label: 'SAB', value: 30, maxValue: 100, color: '#E8C96A' },
 ];
@@ -20,10 +20,10 @@ const stats: Stat[] = [
 const traits = [
   { icon: '🎮', label: 'Gamer', desc: 'Desbrava dungeons nas noites livres' },
   { icon: '🎲', label: 'Boardgamer', desc: 'Mestre das estratégias de mesa' },
-  { icon: '🏋️', label: 'Atleta', desc: 'Academia · Funcional · Corrida' },
+  { icon: '🏋️', label: 'Rato de Academia', desc: 'Academia · Funcional · Corrida' },
   { icon: '💻', label: 'Desenvolvedor', desc: 'Escreve código, entrega produtos' },
   { icon: '🎭', label: 'Amante do Teatro', desc: 'Peregrino semanal das peças' },
-  { icon: '🎨', label: 'Entusiasta da Arte', desc: 'Encontra beleza em tudo' },
+  { icon: '🐕', label: 'Pai de Pet', desc: 'Um Shih Tzu e um Caramelo' },
 ];
 
 function PixelBar({ value, maxValue, color, delay }: { value: number; maxValue: number; color: string; delay: number }) {
@@ -99,7 +99,7 @@ export function CharacterSheet() {
                 Pedro Sereno
               </h3>
               <div className="font-mono text-gold/60 text-xs mt-2 tracking-wider">
-                CLASSE: Dev / Artista / Atleta &nbsp;|&nbsp; NVL: 29 → 30
+                CLASSE: Dev / Artista / Pai de Pet &nbsp;|&nbsp; NVL: 29 → 30
               </div>
             </div>
             <div className="font-mono text-right">
