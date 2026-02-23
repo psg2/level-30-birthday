@@ -10,7 +10,7 @@ interface Milestone {
 const milestones: Milestone[] = [
   { age: '0', title: 'Jogador Entrou no Game', subtitle: 'Um Pedro selvagem apareceu!', icon: '👶' },
   { age: '5', title: 'Primeira Quest: Nintendo', subtitle: 'O vício em jogos começa aqui', icon: '🎮' },
-  { age: '10', title: 'Ragnarök Online', subtitle: 'Novice → Thief → Assassin', icon: '⚔️' },
+  { age: '10', title: 'Ragnarök Online', subtitle: 'Novice → Thief → Rogue', icon: '⚔️' },
   { age: '12', title: 'Anime & Cosplay', subtitle: 'Desbloqueou skill: cultura otaku', icon: '⚡' },
   { age: '14', title: 'Jogador de LoL', subtitle: 'Ranked, tilts e pentakills', icon: '🏆' },
   { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
