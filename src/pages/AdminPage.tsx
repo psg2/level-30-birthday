@@ -210,14 +210,24 @@ export function AdminPage() {
                           </div>
                         </div>
 
-                        {/* Message */}
-                        {guest.message && (
-                          <div className="flex-1 min-w-0 md:text-center">
+                        {/* Details */}
+                        <div className="flex-1 min-w-0 space-y-1">
+                          {guest.message && (
                             <p className="font-body text-cream/40 text-sm italic truncate">
                               "{guest.message}"
                             </p>
-                          </div>
-                        )}
+                          )}
+                          {guest.foodRestrictions && (
+                            <p className="font-mono text-[10px] text-neon-cyan/50 truncate">
+                              🍽️ {guest.foodRestrictions}
+                            </p>
+                          )}
+                          {guest.plusOnes && guest.plusOnes.length > 0 && (
+                            <p className="font-mono text-[10px] text-gold/40 truncate">
+                              +{guest.plusOnes.length}: {guest.plusOnes.map((p: { name: string }) => p.name).join(', ')}
+                            </p>
+                          )}
+                        </div>
 
                         {/* Date + link */}
                         <div className="flex items-center gap-4 shrink-0">

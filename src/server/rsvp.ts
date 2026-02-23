@@ -38,14 +38,26 @@ async function checkRateLimit(redis: Redis): Promise<boolean> {
   return current <= RATE_LIMIT_MAX
 }
 
+export interface PlusOne {
+  name: string
+  email: string
+}
+
 export interface RsvpEntry {
   id: string
   name: string
   email: string
   message: string
+  foodRestrictions: string
+  plusOnes: PlusOne[]
   status: 'confirmed' | 'cancelled'
   createdAt: string
   updatedAt: string
+}
+
+export interface PlusOnePublic {
+  name: string
+  email: string // masked
 }
 
 export interface RsvpPublic {
@@ -53,6 +65,8 @@ export interface RsvpPublic {
   name: string
   email: string // masked
   message: string
+  foodRestrictions: string
+  plusOnes: PlusOnePublic[]
   status: 'confirmed' | 'cancelled'
   createdAt: string
   updatedAt: string
@@ -139,10 +153,17 @@ function buildUpdateEmail(entry: RsvpEntry, siteUrl: string): string {
 // ── Server Functions ────────────────────────────────────────────────────────
 
 export const submitRsvp = createServerFn({ method: 'POST' })
-  .inputValidator((data: { name: string; email: string; message: string; website?: string }) => data)
+  .inputValidator((data: {
+    name: string
+    email: string
+    message: string
+    foodRestrictions?: string
+    plusOnes?: PlusOne[]
+    website?: string
+  }) => data)
   .handler(async ({ data }) => {
     const redis = getRedis()
-    const { name, email, message, website } = data
+    const { name, email, message, foodRestrictions, plusOnes, website } = data
 
     // Honeypot check — bots fill this invisible field; silently fake success
     if (website) {
@@ -165,11 +186,19 @@ export const submitRsvp = createServerFn({ method: 'POST' })
     const id = generateId()
     const now = new Date().toISOString()
 
+    // Clean plus ones — filter out empty entries
+    const cleanPlusOnes: PlusOne[] = (plusOnes || [])
+      .filter((p) => p.name.trim().length > 0)
+      .slice(0, 3)
+      .map((p) => ({ name: p.name.trim(), email: p.email.trim().toLowerCase() }))
+
     const entry: RsvpEntry = {
       id,
       name: name.trim(),
       email: emailKey,
       message: (message || '').trim(),
+      foodRestrictions: (foodRestrictions || '').trim(),
+      plusOnes: cleanPlusOnes,
       status: 'confirmed',
       createdAt: now,
       updatedAt: now,
@@ -206,6 +235,11 @@ export const getRsvp = createServerFn({ method: 'GET' })
     return {
       ...entry,
       email: maskEmail(entry.email),
+      foodRestrictions: entry.foodRestrictions || '',
+      plusOnes: (entry.plusOnes || []).map((p) => ({
+        name: p.name,
+        email: p.email ? maskEmail(p.email) : '',
+      })),
     }
   })
 
@@ -215,6 +249,8 @@ export const updateRsvp = createServerFn({ method: 'POST' })
       id: string
       name?: string
       message?: string
+      foodRestrictions?: string
+      plusOnes?: PlusOne[]
       status?: 'confirmed' | 'cancelled'
     }) => data,
   )
@@ -232,6 +268,13 @@ export const updateRsvp = createServerFn({ method: 'POST' })
 
     if (data.name !== undefined) entry.name = data.name.trim()
     if (data.message !== undefined) entry.message = (data.message || '').trim()
+    if (data.foodRestrictions !== undefined) entry.foodRestrictions = (data.foodRestrictions || '').trim()
+    if (data.plusOnes !== undefined) {
+      entry.plusOnes = data.plusOnes
+        .filter((p) => p.name.trim().length > 0)
+        .slice(0, 3)
+        .map((p) => ({ name: p.name.trim(), email: p.email.trim().toLowerCase() }))
+    }
     if (data.status !== undefined) entry.status = data.status
     entry.updatedAt = new Date().toISOString()
 
@@ -253,7 +296,15 @@ export const updateRsvp = createServerFn({ method: 'POST' })
       console.error('Email send error:', e)
     }
 
-    return { ...entry, email: maskEmail(entry.email) }
+    return {
+      ...entry,
+      email: maskEmail(entry.email),
+      foodRestrictions: entry.foodRestrictions || '',
+      plusOnes: (entry.plusOnes || []).map((p) => ({
+        name: p.name,
+        email: p.email ? maskEmail(p.email) : '',
+      })),
+    }
   })
 
 export const listRsvps = createServerFn({ method: 'GET' })

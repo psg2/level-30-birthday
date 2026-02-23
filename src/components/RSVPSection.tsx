@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { submitRsvp } from '@/server/rsvp';
+import type { PlusOne } from '@/server/rsvp';
 
 type RsvpState = 'idle' | 'form' | 'submitting' | 'confirmed' | 'declined' | 'duplicate';
+
+const emptyPlusOne = (): PlusOne => ({ name: '', email: '' });
 
 export function RSVPSection() {
   const [state, setState] = useState<RsvpState>('idle');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [foodRestrictions, setFoodRestrictions] = useState('');
+  const [plusOnes, setPlusOnes] = useState<PlusOne[]>([]);
   const [error, setError] = useState('');
   const [rsvpId, setRsvpId] = useState('');
   const [existingId, setExistingId] = useState('');
@@ -29,7 +34,14 @@ export function RSVPSection() {
 
     try {
       const result = await submitRsvp({
-        data: { name: name.trim(), email: email.trim(), message: message.trim(), website },
+        data: {
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+          foodRestrictions: foodRestrictions.trim(),
+          plusOnes: plusOnes.filter((p) => p.name.trim().length > 0),
+          website,
+        },
       });
 
       if (result.duplicate) {
@@ -189,6 +201,106 @@ export function RSVPSection() {
                     focus:outline-none focus:border-gold/60 focus:shadow-[0_0_20px_rgba(212,168,67,0.1)]
                     transition-all duration-300 disabled:opacity-50"
                 />
+              </div>
+
+              {/* Food restrictions */}
+              <div className="mb-6">
+                <label className="block font-mono text-xs text-gold/60 tracking-wider mb-2 uppercase">
+                  Restrições Alimentares <span className="text-cream/20">(opcional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={foodRestrictions}
+                  onChange={(e) => setFoodRestrictions(e.target.value)}
+                  placeholder="Vegetariano, sem glúten, alergia a..."
+                  disabled={state === 'submitting'}
+                  className="w-full bg-transparent border border-gold/20 text-cream font-body text-base
+                    px-4 py-3 placeholder:text-cream/20
+                    focus:outline-none focus:border-gold/60 focus:shadow-[0_0_20px_rgba(212,168,67,0.1)]
+                    transition-all duration-300 disabled:opacity-50"
+                />
+              </div>
+
+              {/* Plus ones */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block font-mono text-xs text-gold/60 tracking-wider uppercase">
+                    Acompanhantes <span className="text-cream/20">(opcional)</span>
+                  </label>
+                  {plusOnes.length < 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setPlusOnes([...plusOnes, emptyPlusOne()])}
+                      disabled={state === 'submitting'}
+                      className="font-mono text-[10px] text-neon-cyan/60 tracking-wider cursor-pointer
+                        hover:text-neon-cyan transition-colors disabled:opacity-50"
+                    >
+                      + Adicionar
+                    </button>
+                  )}
+                </div>
+                {plusOnes.length === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setPlusOnes([emptyPlusOne()])}
+                    disabled={state === 'submitting'}
+                    className="w-full py-3 border border-dashed border-gold/15 text-cream/25 font-mono text-xs
+                      cursor-pointer hover:border-gold/30 hover:text-cream/40 transition-all disabled:opacity-50"
+                  >
+                    Vai trazer alguém? Clique aqui
+                  </button>
+                )}
+                <div className="space-y-3">
+                  {plusOnes.map((p, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="border border-gold/10 p-3 relative"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-mono text-[10px] text-gold/40 tracking-wider">
+                          ACOMPANHANTE {idx + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setPlusOnes(plusOnes.filter((_, i) => i !== idx))}
+                          className="font-mono text-[10px] text-cream/20 cursor-pointer hover:text-neon-magenta transition-colors"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={p.name}
+                        onChange={(e) => {
+                          const updated = [...plusOnes];
+                          updated[idx] = { ...updated[idx], name: e.target.value };
+                          setPlusOnes(updated);
+                        }}
+                        placeholder="Nome"
+                        disabled={state === 'submitting'}
+                        className="w-full bg-transparent border border-gold/15 text-cream font-body text-sm
+                          px-3 py-2 mb-2 placeholder:text-cream/20
+                          focus:outline-none focus:border-gold/40 transition-all disabled:opacity-50"
+                      />
+                      <input
+                        type="email"
+                        value={p.email}
+                        onChange={(e) => {
+                          const updated = [...plusOnes];
+                          updated[idx] = { ...updated[idx], email: e.target.value };
+                          setPlusOnes(updated);
+                        }}
+                        placeholder="E-mail (opcional)"
+                        disabled={state === 'submitting'}
+                        className="w-full bg-transparent border border-gold/15 text-cream font-body text-sm
+                          px-3 py-2 placeholder:text-cream/20
+                          focus:outline-none focus:border-gold/40 transition-all disabled:opacity-50"
+                      />
+                    </motion.div>
+                  ))}
+                </div>
               </div>
 
               {/* Honeypot — invisible to humans, bots fill it */}

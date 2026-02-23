@@ -2,16 +2,27 @@ import { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { getRsvp, updateRsvp as updateRsvpFn } from '@/server/rsvp';
-import type { RsvpPublic } from '@/server/rsvp';
+import type { RsvpPublic, PlusOne } from '@/server/rsvp';
 
 type PageState = 'loading' | 'view' | 'editing' | 'saving' | 'not-found';
+
+const emptyPlusOne = (): PlusOne => ({ name: '', email: '' });
 
 export function RsvpPage({ id }: { id: string }) {
   const [state, setState] = useState<PageState>('loading');
   const [rsvp, setRsvp] = useState<RsvpPublic | null>(null);
   const [editName, setEditName] = useState('');
   const [editMessage, setEditMessage] = useState('');
+  const [editFood, setEditFood] = useState('');
+  const [editPlusOnes, setEditPlusOnes] = useState<PlusOne[]>([]);
   const [toast, setToast] = useState('');
+
+  const syncEditFields = (data: RsvpPublic) => {
+    setEditName(data.name);
+    setEditMessage(data.message);
+    setEditFood(data.foodRestrictions || '');
+    setEditPlusOnes(data.plusOnes?.length ? data.plusOnes : []);
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -19,8 +30,7 @@ export function RsvpPage({ id }: { id: string }) {
       .then((data) => {
         if (!data) { setState('not-found'); return; }
         setRsvp(data);
-        setEditName(data.name);
-        setEditMessage(data.message);
+        syncEditFields(data);
         setState('view');
       })
       .catch(() => setState('not-found'));
@@ -31,14 +41,13 @@ export function RsvpPage({ id }: { id: string }) {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const doUpdate = async (updates: Partial<Pick<RsvpPublic, 'name' | 'message' | 'status'>>) => {
+  const doUpdate = async (updates: Record<string, unknown>) => {
     setState('saving');
     try {
       const entry = await updateRsvpFn({ data: { id, ...updates } });
 
       setRsvp(entry);
-      setEditName(entry.name);
-      setEditMessage(entry.message);
+      syncEditFields(entry);
       setState('view');
 
       if (updates.status === 'confirmed') showToast('Presença re-confirmada! 🎉');
@@ -52,7 +61,12 @@ export function RsvpPage({ id }: { id: string }) {
 
   const handleSaveEdit = () => {
     if (!editName.trim()) return;
-    doUpdate({ name: editName.trim(), message: editMessage.trim() });
+    doUpdate({
+      name: editName.trim(),
+      message: editMessage.trim(),
+      foodRestrictions: editFood.trim(),
+      plusOnes: editPlusOnes.filter((p) => p.name.trim().length > 0),
+    });
   };
 
   const formatDate = (iso: string) => {
@@ -197,7 +211,7 @@ export function RsvpPage({ id }: { id: string }) {
                         />
                       </div>
 
-                      <div className="mb-6">
+                      <div className="mb-5">
                         <label className="block font-mono text-xs text-gold/60 tracking-wider mb-2 uppercase">Recado</label>
                         <textarea
                           value={editMessage}
@@ -206,6 +220,90 @@ export function RsvpPage({ id }: { id: string }) {
                           className="w-full bg-transparent border border-gold/20 text-cream font-body text-base
                             px-4 py-3 resize-none focus:outline-none focus:border-gold/60 transition-all"
                         />
+                      </div>
+
+                      <div className="mb-5">
+                        <label className="block font-mono text-xs text-gold/60 tracking-wider mb-2 uppercase">
+                          Restrições Alimentares
+                        </label>
+                        <input
+                          type="text"
+                          value={editFood}
+                          onChange={(e) => setEditFood(e.target.value)}
+                          placeholder="Vegetariano, sem glúten, alergia a..."
+                          className="w-full bg-transparent border border-gold/20 text-cream font-body text-base
+                            px-4 py-3 placeholder:text-cream/20 focus:outline-none focus:border-gold/60 transition-all"
+                        />
+                      </div>
+
+                      <div className="mb-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block font-mono text-xs text-gold/60 tracking-wider uppercase">
+                            Acompanhantes
+                          </label>
+                          {editPlusOnes.length < 3 && (
+                            <button
+                              type="button"
+                              onClick={() => setEditPlusOnes([...editPlusOnes, emptyPlusOne()])}
+                              className="font-mono text-[10px] text-neon-cyan/60 tracking-wider cursor-pointer
+                                hover:text-neon-cyan transition-colors"
+                            >
+                              + Adicionar
+                            </button>
+                          )}
+                        </div>
+                        {editPlusOnes.length === 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setEditPlusOnes([emptyPlusOne()])}
+                            className="w-full py-3 border border-dashed border-gold/15 text-cream/25 font-mono text-xs
+                              cursor-pointer hover:border-gold/30 hover:text-cream/40 transition-all"
+                          >
+                            Adicionar acompanhante
+                          </button>
+                        )}
+                        <div className="space-y-3">
+                          {editPlusOnes.map((p, idx) => (
+                            <div key={idx} className="border border-gold/10 p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-mono text-[10px] text-gold/40 tracking-wider">
+                                  ACOMPANHANTE {idx + 1}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditPlusOnes(editPlusOnes.filter((_, i) => i !== idx))}
+                                  className="font-mono text-[10px] text-cream/20 cursor-pointer hover:text-neon-magenta transition-colors"
+                                >
+                                  Remover
+                                </button>
+                              </div>
+                              <input
+                                type="text"
+                                value={p.name}
+                                onChange={(e) => {
+                                  const updated = [...editPlusOnes];
+                                  updated[idx] = { ...updated[idx], name: e.target.value };
+                                  setEditPlusOnes(updated);
+                                }}
+                                placeholder="Nome"
+                                className="w-full bg-transparent border border-gold/15 text-cream font-body text-sm
+                                  px-3 py-2 mb-2 placeholder:text-cream/20 focus:outline-none focus:border-gold/40 transition-all"
+                              />
+                              <input
+                                type="email"
+                                value={p.email}
+                                onChange={(e) => {
+                                  const updated = [...editPlusOnes];
+                                  updated[idx] = { ...updated[idx], email: e.target.value };
+                                  setEditPlusOnes(updated);
+                                }}
+                                placeholder="E-mail (opcional)"
+                                className="w-full bg-transparent border border-gold/15 text-cream font-body text-sm
+                                  px-3 py-2 placeholder:text-cream/20 focus:outline-none focus:border-gold/40 transition-all"
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
                       <div className="flex gap-3">
@@ -218,8 +316,7 @@ export function RsvpPage({ id }: { id: string }) {
                         </button>
                         <button
                           onClick={() => {
-                            setEditName(rsvp.name);
-                            setEditMessage(rsvp.message);
+                            syncEditFields(rsvp);
                             setState('view');
                           }}
                           className="px-6 py-3 border border-cream/15 text-cream/30 font-mono text-sm
@@ -252,6 +349,31 @@ export function RsvpPage({ id }: { id: string }) {
                           <div>
                             <div className="font-mono text-xs text-gold/40 tracking-wider uppercase mb-1">Recado</div>
                             <div className="font-body text-cream/60 italic">"{rsvp.message}"</div>
+                          </div>
+                        )}
+
+                        {rsvp.foodRestrictions && (
+                          <div>
+                            <div className="font-mono text-xs text-gold/40 tracking-wider uppercase mb-1">Restrições Alimentares</div>
+                            <div className="font-body text-cream/60">{rsvp.foodRestrictions}</div>
+                          </div>
+                        )}
+
+                        {rsvp.plusOnes && rsvp.plusOnes.length > 0 && (
+                          <div>
+                            <div className="font-mono text-xs text-gold/40 tracking-wider uppercase mb-2">
+                              Acompanhante{rsvp.plusOnes.length > 1 ? 's' : ''}
+                            </div>
+                            <div className="space-y-2">
+                              {rsvp.plusOnes.map((p, idx) => (
+                                <div key={idx} className="flex items-center gap-3 border border-gold/10 px-3 py-2">
+                                  <span className="font-body text-cream/60">{p.name}</span>
+                                  {p.email && (
+                                    <span className="font-mono text-cream/30 text-xs">{p.email}</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
 
