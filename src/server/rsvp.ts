@@ -85,8 +85,32 @@ function maskEmail(email: string): string {
   return email.replace(/(.{2})(.*)(@.*)/, '$1***$3')
 }
 
+function buildRsvpSummaryHtml(entry: RsvpEntry): string {
+  let html = ''
+
+  if (entry.plusOnes && entry.plusOnes.length > 0) {
+    const names = entry.plusOnes.map((p) => p.name).join(', ')
+    html += `
+      <div style="background:#1A1A1A;border:1px solid #D4A84320;padding:16px 20px;margin:16px 0;text-align:left;">
+        <p style="color:#D4A843;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 8px;font-family:monospace;">👥 Acompanhante${entry.plusOnes.length > 1 ? 's' : ''}</p>
+        <p style="color:#F5E6D3;font-size:14px;margin:0;">${names}</p>
+      </div>`
+  }
+
+  if (entry.foodRestrictions) {
+    html += `
+      <div style="background:#1A1A1A;border:1px solid #D4A84320;padding:16px 20px;margin:16px 0;text-align:left;">
+        <p style="color:#D4A843;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 8px;font-family:monospace;">🍽️ Restrições Alimentares</p>
+        <p style="color:#F5E6D3;font-size:14px;margin:0;">${entry.foodRestrictions}</p>
+      </div>`
+  }
+
+  return html
+}
+
 function buildConfirmationEmail(entry: RsvpEntry, siteUrl: string): string {
   const rsvpUrl = `${siteUrl}/rsvp/${entry.id}`
+  const summary = buildRsvpSummaryHtml(entry)
   return `
 <!DOCTYPE html>
 <html>
@@ -108,6 +132,7 @@ function buildConfirmationEmail(entry: RsvpEntry, siteUrl: string): string {
         <p style="color:#F5E6D3;font-size:16px;font-style:italic;margin:0 0 4px;">Sábado, 14 de Março de 2026</p>
         <p style="color:#F5E6D360;font-size:13px;margin:0;">Mais detalhes em breve</p>
       </div>
+      ${summary}
       <p style="color:#F5E6D350;font-size:13px;margin:24px 0 16px;">Precisa mudar algo? Acesse seu convite:</p>
       <a href="${rsvpUrl}" style="display:inline-block;padding:12px 32px;border:2px solid #D4A843;color:#D4A843;text-decoration:none;font-size:14px;font-style:italic;font-weight:bold;letter-spacing:1px;">Meu Convite →</a>
     </div>
@@ -122,6 +147,7 @@ function buildConfirmationEmail(entry: RsvpEntry, siteUrl: string): string {
 function buildUpdateEmail(entry: RsvpEntry, siteUrl: string): string {
   const rsvpUrl = `${siteUrl}/rsvp/${entry.id}`
   const isConfirmed = entry.status === 'confirmed'
+  const summary = isConfirmed ? buildRsvpSummaryHtml(entry) : ''
   return `
 <!DOCTYPE html>
 <html>
@@ -139,6 +165,7 @@ function buildUpdateEmail(entry: RsvpEntry, siteUrl: string): string {
       <p style="color:#F5E6D380;font-size:14px;margin:0 0 24px;">
         ${isConfirmed ? `Boa, ${entry.name}! Você tá de volta na lista.` : `Que pena, ${entry.name}. Vamos sentir sua falta.`}
       </p>
+      ${summary}
       <p style="color:#F5E6D350;font-size:13px;margin:24px 0 16px;">Mudou de ideia? Sempre dá pra atualizar:</p>
       <a href="${rsvpUrl}" style="display:inline-block;padding:12px 32px;border:2px solid #D4A843;color:#D4A843;text-decoration:none;font-size:14px;font-style:italic;font-weight:bold;">Meu Convite →</a>
     </div>

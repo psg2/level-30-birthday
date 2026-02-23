@@ -144,18 +144,75 @@ export function AdminPage() {
               animate={{ opacity: 1, y: 0 }}
             >
               {/* Stats cards */}
-              <div className="grid grid-cols-3 gap-4 mb-10">
-                {[
-                  { label: 'Total', value: stats.total, color: 'text-cream' },
-                  { label: 'Confirmados', value: stats.confirmed, color: 'text-neon-cyan' },
-                  { label: 'Cancelados', value: stats.cancelled, color: 'text-neon-magenta' },
-                ].map((stat) => (
-                  <div key={stat.label} className="border border-gold/15 bg-stage-dark/60 p-5 text-center">
-                    <div className={`font-mono text-3xl md:text-4xl font-bold ${stat.color}`}>{stat.value}</div>
-                    <div className="font-mono text-xs text-gold/40 tracking-wider uppercase mt-1">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
+              {(() => {
+                const confirmedGuests = guests.filter((g) => g.status === 'confirmed')
+                const confirmedPlusOnes = confirmedGuests.reduce(
+                  (sum, g) => sum + (g.plusOnes?.length || 0), 0
+                )
+                const totalHeadcount = confirmedGuests.length + confirmedPlusOnes
+
+                // Food restrictions summary
+                const foodMap = new Map<string, number>()
+                for (const g of confirmedGuests) {
+                  if (g.foodRestrictions) {
+                    const key = g.foodRestrictions.trim().toLowerCase()
+                    foodMap.set(key, (foodMap.get(key) || 0) + 1)
+                  }
+                  for (const p of (g.plusOnes || [])) {
+                    // plus ones don't have their own food field yet, skip
+                  }
+                }
+                const foodList = [...foodMap.entries()].sort((a, b) => b[1] - a[1])
+
+                return (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                      <div className="border border-gold/15 bg-stage-dark/60 p-4 text-center">
+                        <div className="font-mono text-3xl md:text-4xl font-bold text-cream">{stats.total}</div>
+                        <div className="font-mono text-[10px] text-gold/40 tracking-wider uppercase mt-1">RSVPs</div>
+                      </div>
+                      <div className="border border-gold/15 bg-stage-dark/60 p-4 text-center">
+                        <div className="font-mono text-3xl md:text-4xl font-bold text-neon-cyan">{totalHeadcount}</div>
+                        <div className="font-mono text-[10px] text-gold/40 tracking-wider uppercase mt-1">Pessoas Confirmadas</div>
+                        {confirmedPlusOnes > 0 && (
+                          <div className="font-mono text-[9px] text-cream/20 mt-0.5">
+                            {confirmedGuests.length} + {confirmedPlusOnes} acomp.
+                          </div>
+                        )}
+                      </div>
+                      <div className="border border-gold/15 bg-stage-dark/60 p-4 text-center">
+                        <div className="font-mono text-3xl md:text-4xl font-bold text-neon-magenta">{stats.cancelled}</div>
+                        <div className="font-mono text-[10px] text-gold/40 tracking-wider uppercase mt-1">Cancelados</div>
+                      </div>
+                      <div className="border border-gold/15 bg-stage-dark/60 p-4 text-center">
+                        <div className="font-mono text-3xl md:text-4xl font-bold text-gold">{foodList.length}</div>
+                        <div className="font-mono text-[10px] text-gold/40 tracking-wider uppercase mt-1">Restrições</div>
+                      </div>
+                    </div>
+
+                    {/* Food restrictions summary */}
+                    {foodList.length > 0 && (
+                      <div className="border border-gold/10 bg-stage-dark/40 p-5 mb-8">
+                        <div className="font-mono text-xs text-gold/50 tracking-[0.2em] uppercase mb-3">
+                          🍽️ Restrições Alimentares
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {foodList.map(([restriction, count]) => (
+                            <span
+                              key={restriction}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5
+                                border border-neon-cyan/20 bg-neon-cyan/5 font-mono text-xs text-neon-cyan/70"
+                            >
+                              <span className="capitalize">{restriction}</span>
+                              <span className="text-neon-cyan/40">×{count}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
 
               {/* Filter tabs */}
               <div className="flex gap-2 mb-6">
