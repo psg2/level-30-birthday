@@ -297,9 +297,10 @@ export function AdminPage() {
                             </p>
                           )}
                           {guest.trophies && guest.trophies.length > 0 && (
-                            <p className="font-mono text-[10px] text-[#cd7f32]/60 truncate">
-                              🏆 {guest.trophies.length}/9{' '}
-                              {guest.trophies.length >= 9 && '🏅 PLATINA'}
+                            <p className="font-mono text-[10px] text-[#cd7f32]/60" title={guest.trophies.join(', ')}>
+                              🏆 {guest.trophies.length}/9:{' '}
+                              {guest.trophies.join(', ')}
+                              {guest.trophies.length >= 9 && ' 🏅 PLATINA'}
                             </p>
                           )}
                         </div>
