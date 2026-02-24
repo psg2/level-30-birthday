@@ -8,6 +8,9 @@ import { TimelineSection } from '@/components/TimelineSection'
 import { EventDetails } from '@/components/EventDetails'
 import { RSVPSection } from '@/components/RSVPSection'
 import { Footer } from '@/components/Footer'
+import { EasterEggProvider } from '@/hooks/useEasterEggs'
+import { TrophyNotification } from '@/components/TrophyNotification'
+import { TrophyCounter } from '@/components/TrophyCounter'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -29,28 +32,32 @@ function Home() {
   const [curtainOpen, setCurtainOpen] = useState(false)
 
   return (
-    <div className="grain-overlay">
-      <CurtainReveal onComplete={() => setCurtainOpen(true)} />
-      <AnimatePresence>
-        {curtainOpen && (
-          <motion.main
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-          >
-            <HeroSection />
-            <ActDivider />
-            <CharacterSheet />
-            <ActDivider />
-            <TimelineSection />
-            <ActDivider />
-            <EventDetails />
-            <ActDivider />
-            <RSVPSection />
-            <Footer />
-          </motion.main>
-        )}
-      </AnimatePresence>
-    </div>
+    <EasterEggProvider>
+      <div className="grain-overlay">
+        <CurtainReveal onComplete={() => setCurtainOpen(true)} />
+        <AnimatePresence>
+          {curtainOpen && (
+            <motion.main
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <HeroSection />
+              <ActDivider />
+              <CharacterSheet />
+              <ActDivider />
+              <TimelineSection />
+              <ActDivider />
+              <EventDetails />
+              <ActDivider />
+              <RSVPSection />
+              <Footer />
+            </motion.main>
+          )}
+        </AnimatePresence>
+        <TrophyNotification />
+        <TrophyCounter />
+      </div>
+    </EasterEggProvider>
   )
 }

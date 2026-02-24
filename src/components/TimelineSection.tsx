@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { Player2Card } from './Player2Card';
+import { useEasterEggs } from '@/hooks/useEasterEggs';
 
 interface MilestoneLink {
   label: string;
@@ -38,6 +39,7 @@ const milestones: Milestone[] = [
 export function TimelineSection() {
   const [player2Open, setPlayer2Open] = useState(false);
   const [revealedLinks, setRevealedLinks] = useState<Set<string>>(new Set());
+  const { unlock } = useEasterEggs();
 
   return (
     <section className="relative py-24 md:py-32 px-6 overflow-hidden">
@@ -112,9 +114,9 @@ export function TimelineSection() {
                   whileHover={{ scale: 1.02 }}
                   onClick={
                     milestone.id === 'clea'
-                      ? () => setPlayer2Open(true)
+                      ? () => { setPlayer2Open(true); unlock('clea'); }
                       : milestone.links && milestone.id
-                        ? () => setRevealedLinks((prev) => { const next = new Set(prev); next.add(milestone.id!); return next; })
+                        ? () => { setRevealedLinks((prev) => { const next = new Set(prev); next.add(milestone.id!); return next; }); unlock(milestone.id!); }
                         : undefined
                   }
                   className={`p-5 border ${

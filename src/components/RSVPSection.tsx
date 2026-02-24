@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { submitRsvp } from '@/server/rsvp';
 import type { PlusOne } from '@/server/rsvp';
+import { PlatinumBadge } from './PlatinumBadge';
 
 type RsvpState = 'idle' | 'form' | 'submitting' | 'confirmed' | 'declined' | 'duplicate';
 
@@ -85,6 +86,9 @@ export function RSVPSection() {
           "O palco está montado, as luzes estão prontas. Você vai estar na plateia?"
         </p>
       </motion.div>
+
+      {/* Platinum badge — only shows if all easter eggs found */}
+      <PlatinumBadge />
 
       {/* RSVP States */}
       <AnimatePresence mode="wait">
