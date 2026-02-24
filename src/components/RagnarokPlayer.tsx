@@ -3,59 +3,14 @@ import { useState, useRef, useEffect } from 'react';
 
 const PRONTERA_URL = '/easter-eggs/prontera.mp3';
 
-// Pixel art style Prontera scene using CSS
-function PronteraScene() {
+function RagnarokImage() {
   return (
-    <div className="relative w-full max-w-md mx-auto mb-6">
-      <div className="relative border border-gold/20 bg-[#2a1f3d] overflow-hidden p-6" style={{ imageRendering: 'pixelated' }}>
-        {/* Sky gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#4a7ab5] via-[#6b9fd4] to-[#2a1f3d]" />
-
-        {/* Clouds */}
-        <motion.div
-          animate={{ x: [0, 20, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-4 left-8 w-16 h-4 bg-white/20 rounded-full blur-sm"
-        />
-        <motion.div
-          animate={{ x: [0, -15, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-8 right-12 w-12 h-3 bg-white/15 rounded-full blur-sm"
-        />
-
-        {/* Ground */}
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-[#4a6b35]" />
-        <div className="absolute bottom-0 left-0 right-0 h-2 bg-[#3a5a28]" />
-
-        {/* Castle/Building silhouette */}
-        <div className="relative z-10 flex items-end justify-center gap-1 pt-16 pb-8">
-          {/* Left tower */}
-          <div className="flex flex-col items-center">
-            <div className="w-2 h-2 bg-[#c4a55a]" />
-            <div className="w-4 h-8 bg-[#8b7355]" />
-            <div className="w-6 h-4 bg-[#7a6548]" />
-          </div>
-          {/* Center building */}
-          <div className="flex flex-col items-center">
-            <div className="w-3 h-3 bg-[#c4a55a]" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
-            <div className="w-8 h-12 bg-[#8b7355]" />
-            <div className="w-12 h-6 bg-[#7a6548]" />
-          </div>
-          {/* Right tower */}
-          <div className="flex flex-col items-center">
-            <div className="w-2 h-2 bg-[#c4a55a]" />
-            <div className="w-4 h-8 bg-[#8b7355]" />
-            <div className="w-6 h-4 bg-[#7a6548]" />
-          </div>
-        </div>
-
-        {/* Prontera text */}
-        <div className="absolute bottom-3 left-0 right-0 text-center">
-          <span className="font-mono text-[10px] text-[#c4a55a] tracking-[0.3em]">
-            PRONTERA
-          </span>
-        </div>
-      </div>
+    <div className="relative w-full max-w-sm mx-auto mb-6 flex justify-center">
+      <img
+        src="/easter-eggs/Ragnarok.jpg"
+        alt="Ragnarök Online — Fique com Ragnarok"
+        className="max-h-[40vh] w-auto object-contain border border-gold/20 shadow-2xl"
+      />
     </div>
   );
 }
@@ -146,7 +101,7 @@ export function RagnarokPlayer({ open, onClose }: { open: boolean; onClose: () =
                 🔓 EASTER EGG DESBLOQUEADO
               </motion.div>
 
-              <PronteraScene />
+              <RagnarokImage />
 
               {/* Play button + visualizer */}
               <div className="text-center">
