@@ -1,4 +1,7 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
+import { useEasterEggs } from '@/hooks/useEasterEggs';
+import { EasterEggLightbox } from './EasterEggLightbox';
 
 const details = [
   {
@@ -18,10 +21,24 @@ const details = [
     label: 'Dress Code',
     value: 'Venha como seu personagem favorito',
     sub: 'Ou simplesmente arrasa no look',
+    id: 'teatro',
   },
 ];
 
+const teatroImages = [
+  { src: '/easter-eggs/ACorPurpura.jpg', caption: 'A Cor Púrpura' },
+  { src: '/easter-eggs/PorElas.jpg', caption: 'Por Elas' },
+  { src: '/easter-eggs/RioUphill.jpg', caption: 'Rio Uphill' },
+  { src: '/easter-eggs/TomJobim.jpg', caption: 'Tom Jobim' },
+  { src: '/easter-eggs/MeninasMalvadas.jpg', caption: 'Meninas Malvadas' },
+  { src: '/easter-eggs/Alice.jpg', caption: 'Alice' },
+  { src: '/easter-eggs/Hair.jpg', caption: 'Hair' },
+];
+
 export function EventDetails() {
+  const [teatroOpen, setTeatroOpen] = useState(false);
+  const { unlock } = useEasterEggs();
+
   return (
     <section className="relative py-24 md:py-32 px-6">
       {/* Header */}
@@ -53,7 +70,8 @@ export function EventDetails() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.15 * i }}
             whileHover={{ y: -8 }}
-            className="relative group"
+            className={`relative group ${detail.id ? 'cursor-pointer' : ''}`}
+            onClick={detail.id === 'teatro' ? () => { unlock('teatro'); setTeatroOpen(true); } : undefined}
           >
             <div className="border border-gold/15 bg-stage-dark/60 backdrop-blur-sm p-8 text-center
               transition-all duration-500 group-hover:border-gold/40 group-hover:bg-stage-dark/80 h-full">
@@ -122,6 +140,13 @@ export function EventDetails() {
           </div>
         </div>
       </motion.div>
+
+      <EasterEggLightbox
+        open={teatroOpen}
+        onClose={() => setTeatroOpen(false)}
+        images={teatroImages}
+        title="🎭 Acervo Teatral"
+      />
     </section>
   );
 }

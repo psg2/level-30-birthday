@@ -1,6 +1,8 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
 import { useRef, useState } from 'react';
+import { useEasterEggs } from '@/hooks/useEasterEggs';
+import { EasterEggLightbox } from './EasterEggLightbox';
 
 interface Stat {
   label: string;
@@ -8,10 +10,11 @@ interface Stat {
   value: number;
   maxValue: number;
   color: string;
+  id?: string;
 }
 
 const stats: Stat[] = [
-  { label: 'DEV', fullName: 'Desenvolvimento', value: 95, maxValue: 100, color: '#00F5D4' },
+  { label: 'DEV', fullName: 'Desenvolvimento', value: 95, maxValue: 100, color: '#00F5D4', id: 'programming' },
   { label: 'GAM', fullName: 'Gaming', value: 90, maxValue: 100, color: '#F72585' },
   { label: 'FIT', fullName: 'Fitness', value: 75, maxValue: 100, color: '#7B61FF' },
   { label: 'GAS', fullName: 'Gastronomia', value: 92, maxValue: 100, color: '#D4A843' },
@@ -24,7 +27,7 @@ const traits = [
   { icon: '💻', label: 'Desenvolvedor', desc: 'Escreve <s>código</s> prompts' },
   { icon: '🍰', label: 'Foodie', desc: 'Viciado em comida e sobremesas novas' },
   { icon: '🎭', label: 'Amante do Teatro', desc: 'Peregrino semanal das peças' },
-  { icon: '🐕', label: 'Pai de Pet', desc: '🐶 Rick · 🍯 Mel' },
+  { icon: '🐕', label: 'Pai de Pet', desc: '🐶 Rick · 🍯 Mel', id: 'pets' },
 ];
 
 function PixelBar({ value, maxValue, color, delay }: { value: number; maxValue: number; color: string; delay: number }) {
@@ -51,7 +54,7 @@ function PixelBar({ value, maxValue, color, delay }: { value: number; maxValue: 
   );
 }
 
-function StatRows({ stats }: { stats: Stat[] }) {
+function StatRows({ stats, onStatClick }: { stats: Stat[]; onStatClick?: (id: string) => void }) {
   const [activeTip, setActiveTip] = useState<string | null>(null);
 
   const toggleTip = (label: string) => {
@@ -66,7 +69,7 @@ function StatRows({ stats }: { stats: Stat[] }) {
           <div
             key={stat.label}
             className="flex items-center gap-2 sm:gap-4 group/stat relative cursor-help select-none"
-            onClick={() => toggleTip(stat.label)}
+            onClick={() => { toggleTip(stat.label); if (stat.id && onStatClick) onStatClick(stat.id); }}
           >
             <div className="font-mono text-xs sm:text-sm text-cream/60 w-8 sm:w-10 text-right shrink-0">
               {stat.label}
@@ -92,9 +95,23 @@ function StatRows({ stats }: { stats: Stat[] }) {
   );
 }
 
+const programmingImages = [
+  { src: '/easter-eggs/Maratona1.jpg', caption: 'Maratona de Programação — os tempos de ICPC' },
+  { src: '/easter-eggs/Maratona2.jpeg', caption: 'Quando o código compilava de primeira era milagre' },
+];
+
+const petsImages = [
+  { src: '/easter-eggs/Rick.jpg', caption: 'Rick — o companheiro de todas as horas' },
+  { src: '/easter-eggs/Mel.jpg', caption: 'Mel — a princesa da casa' },
+  { src: '/easter-eggs/RickMelHalloween.jpg', caption: 'Halloween com a dupla!' },
+];
+
 export function CharacterSheet() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const { unlock } = useEasterEggs();
+  const [lightbox, setLightbox] = useState<{ images: { src: string; caption?: string }[]; title: string } | null>(null);
+  const [cosplayOpen, setCosplayOpen] = useState(false);
 
   return (
     <section ref={ref} className="relative py-24 md:py-32 px-6">
@@ -137,7 +154,11 @@ export function CharacterSheet() {
           <div className="flex items-start justify-between gap-4 mb-10">
             <div className="min-w-0">
               <div className="font-mono text-neon-cyan text-xs tracking-[0.3em] mb-1">JOGADOR UM</div>
-              <h3 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-cream italic">
+              <h3
+                className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-cream italic cursor-pointer
+                  hover:text-gold/90 transition-colors"
+                onClick={() => { unlock('cosplay'); setCosplayOpen(true); }}
+              >
                 Pedro Sereno
               </h3>
               <div className="font-mono text-gold/60 text-[10px] sm:text-xs mt-2 tracking-wider leading-relaxed">
@@ -156,7 +177,12 @@ export function CharacterSheet() {
           </div>
 
           {/* Stats */}
-          <StatRows stats={stats} />
+          <StatRows stats={stats} onStatClick={(id) => {
+            if (id === 'programming') {
+              unlock('programming');
+              setLightbox({ images: programmingImages, title: '💻 Era Competitiva' });
+            }
+          }} />
 
           {/* Divider */}
           <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mb-10" />
@@ -171,7 +197,11 @@ export function CharacterSheet() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 * i }}
                 whileHover={{ scale: 1.05, backgroundColor: 'rgba(212, 168, 67, 0.1)' }}
-                className="border border-gold/10 p-4 cursor-default transition-colors"
+                className={`border border-gold/10 p-4 transition-colors ${trait.id ? 'cursor-pointer' : 'cursor-default'}`}
+                onClick={trait.id === 'pets' ? () => {
+                  unlock('pets');
+                  setLightbox({ images: petsImages, title: '🐶 Rick & 🍯 Mel' });
+                } : undefined}
               >
                 <div className="text-2xl mb-2">{trait.icon}</div>
                 <div className="font-mono text-sm text-gold font-bold">{trait.label}</div>
@@ -181,6 +211,27 @@ export function CharacterSheet() {
           </div>
         </div>
       </motion.div>
+
+      {/* Cosplay easter egg — YouTube embed */}
+      {cosplayOpen && (
+        <EasterEggLightbox
+          open={true}
+          onClose={() => setCosplayOpen(false)}
+          images={[]}
+          title="⚡ Alter Ego"
+          videoUrl="https://www.youtube.com/embed/KSUa-BNxhaU"
+        />
+      )}
+
+      {/* Programming / Pets lightbox */}
+      {lightbox && (
+        <EasterEggLightbox
+          open={true}
+          onClose={() => setLightbox(null)}
+          images={lightbox.images}
+          title={lightbox.title}
+        />
+      )}
     </section>
   );
 }

@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Player2Card } from './Player2Card';
 import { EasterEggLightbox } from './EasterEggLightbox';
 import { RagnarokPlayer } from './RagnarokPlayer';
-import { NintendoPlayer } from './NintendoPlayer';
 import { useEasterEggs } from '@/hooks/useEasterEggs';
 
 interface MilestoneLink {
@@ -23,75 +22,43 @@ interface Milestone {
 
 const milestones: Milestone[] = [
   { age: '0', title: 'Jogador Entrou no Game', subtitle: 'Um Pedro selvagem apareceu!', icon: '👶' },
-  { age: '5', title: 'Primeira Quest: Nintendo', subtitle: 'O vício em jogos começa aqui', icon: '🎮', id: 'nintendo' },
+  { age: '5', title: 'Primeira Quest: Nintendo', subtitle: 'O vício em jogos começa aqui', icon: '🎮' },
   { age: '10', title: 'Ragnarök Online', subtitle: 'Novice → Thief → Rogue', icon: '⚔️', id: 'ragnarok' },
-  { age: '12', title: 'Anime & Cosplay', subtitle: 'Desbloqueou skill: cultura otaku', icon: '⚡', id: 'cosplay' },
+  { age: '12', title: 'Anime & Cosplay', subtitle: 'Desbloqueou skill: cultura otaku', icon: '⚡' },
   { age: '14', title: 'Jogador de LoL', subtitle: 'Ranked, tilts e pentakills', icon: '🏆', links: [
     { label: 'Twitch', url: 'https://www.twitch.tv/videos/47021114', icon: '📺' },
     { label: 'Facebook', url: 'https://www.facebook.com/share/p/1BTyUk5fn7/', icon: '👤' },
   ], id: 'lol' },
-  { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻', id: 'programming' },
+  { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
   { age: '21', title: 'Rato de Academia', subtitle: 'Buff de stamina ativado', icon: '🏋️' },
   { age: '21', title: 'Encontrou o Amor', subtitle: 'Cléa entrou na party como Player 2', icon: '❤️', id: 'clea' },
-  { age: '25', title: 'Pai de Pet', subtitle: 'Rick e Mel entram na party', icon: '🐕', id: 'pets' },
+  { age: '25', title: 'Pai de Pet', subtitle: 'Rick e Mel entram na party', icon: '🐕' },
   { age: '26', title: 'Vício em Board Games', subtitle: 'Tudo começou com Splendor', icon: '🎲', id: 'boardgames' },
-  { age: '28', title: 'Amante do Teatro', subtitle: 'Uma nova paixão entra em cena', icon: '🎭', id: 'teatro' },
+  { age: '28', title: 'Amante do Teatro', subtitle: 'Uma nova paixão entra em cena', icon: '🎭' },
   { age: '30', title: 'FASE DO CHEFÃO', subtitle: 'A aventura está apenas começando...', icon: '🔥' },
 ];
 
 // Easter egg content per ID
 const easterEggImages: Record<string, { images: { src: string; caption?: string }[]; title: string }> = {
-  pets: {
-    title: '🐶 Rick & 🍯 Mel',
-    images: [
-      { src: '/easter-eggs/Rick.jpg', caption: 'Rick — o companheiro de todas as horas' },
-      { src: '/easter-eggs/Mel.jpg', caption: 'Mel — a princesa da casa' },
-      { src: '/easter-eggs/RickMelHalloween.jpg', caption: 'Halloween com a dupla!' },
-    ],
-  },
-  // Placeholder entries — will be filled when photos arrive
-  cosplay: {
-    title: '⚡ Alter Ego',
-    images: [],
-  },
-  programming: {
-    title: '💻 Era Competitiva',
-    images: [
-      { src: '/easter-eggs/Maratona1.jpg', caption: 'Maratona de Programação — os tempos de ICPC' },
-      { src: '/easter-eggs/Maratona2.jpeg', caption: 'Quando o código compilava de primeira era milagre' },
-    ],
-  },
   boardgames: {
     title: '🎲 A Coleção',
     images: [
       { src: '/easter-eggs/Boardgames.jpeg', caption: 'Tudo começou com Splendor... e não parou mais' },
     ],
   },
-  teatro: {
-    title: '🎭 Acervo Teatral',
-    images: [
-      { src: '/easter-eggs/ACorPurpura.jpg', caption: 'A Cor Púrpura' },
-      { src: '/easter-eggs/PorElas.jpg', caption: 'Por Elas' },
-      { src: '/easter-eggs/RioUphill.jpg', caption: 'Rio Uphill' },
-      { src: '/easter-eggs/TomJobim.jpg', caption: 'Tom Jobim' },
-      { src: '/easter-eggs/MeninasMalvadas.jpg', caption: 'Meninas Malvadas' },
-      { src: '/easter-eggs/Alice.jpg', caption: 'Alice' },
-      { src: '/easter-eggs/Hair.jpg', caption: 'Hair' },
-    ],
-  },
+
 };
 
 // IDs that open a lightbox (have images)
 const lightboxIds = new Set(Object.keys(easterEggImages));
 // IDs that open special modals
-const specialIds = new Set(['clea', 'ragnarok', 'nintendo']);
+
 // IDs that reveal links inline
 const linkIds = new Set(['lol']);
 
 export function TimelineSection() {
   const [player2Open, setPlayer2Open] = useState(false);
   const [ragnarokOpen, setRagnarokOpen] = useState(false);
-  const [nintendoOpen, setNintendoOpen] = useState(false);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
   const [revealedLinks, setRevealedLinks] = useState<Set<string>>(new Set());
   const { unlock } = useEasterEggs();
@@ -175,8 +142,6 @@ export function TimelineSection() {
                             setPlayer2Open(true);
                           } else if (id === 'ragnarok') {
                             setRagnarokOpen(true);
-                          } else if (id === 'nintendo') {
-                            setNintendoOpen(true);
                           } else if (linkIds.has(id)) {
                             setRevealedLinks((prev) => { const next = new Set(prev); next.add(id); return next; });
                           } else if (lightboxIds.has(id)) {
@@ -259,7 +224,6 @@ export function TimelineSection() {
 
       <Player2Card open={player2Open} onClose={() => setPlayer2Open(false)} />
       <RagnarokPlayer open={ragnarokOpen} onClose={() => setRagnarokOpen(false)} />
-      <NintendoPlayer open={nintendoOpen} onClose={() => setNintendoOpen(false)} />
       {lightboxId && easterEggImages[lightboxId] && (
         <EasterEggLightbox
           open={true}

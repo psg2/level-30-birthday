@@ -1,5 +1,8 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
 import { useCountdown } from '../hooks/useCountdown';
+import { useEasterEggs } from '@/hooks/useEasterEggs';
+import { NintendoPlayer } from './NintendoPlayer';
 
 const partyDate = new Date('2026-03-14T20:00:00');
 
@@ -25,6 +28,19 @@ function CountdownUnit({ value, label }: { value: number; label: string; }) {
 
 export function HeroSection() {
   const timeLeft = useCountdown(partyDate);
+  const [tapCount, setTapCount] = useState(0);
+  const [nintendoOpen, setNintendoOpen] = useState(false);
+  const { unlock } = useEasterEggs();
+
+  const handleTap30 = () => {
+    const next = tapCount + 1;
+    setTapCount(next);
+    if (next >= 3) {
+      unlock('nintendo');
+      setNintendoOpen(true);
+      setTapCount(0);
+    }
+  };
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
@@ -93,7 +109,7 @@ export function HeroSection() {
         >
           Level
           <br />
-          <span className="text-8xl md:text-[14rem]">30</span>
+          <span className="text-8xl md:text-[14rem] cursor-pointer select-none" onClick={handleTap30}>30</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -169,6 +185,7 @@ export function HeroSection() {
           </svg>
         </div>
       </motion.div>
+      <NintendoPlayer open={nintendoOpen} onClose={() => setNintendoOpen(false)} />
     </section>
   );
 }

@@ -6,9 +6,10 @@ interface EasterEggLightboxProps {
   onClose: () => void;
   images: { src: string; caption?: string }[];
   title?: string;
+  videoUrl?: string;
 }
 
-export function EasterEggLightbox({ open, onClose, images, title }: EasterEggLightboxProps) {
+export function EasterEggLightbox({ open, onClose, images, title, videoUrl }: EasterEggLightboxProps) {
   const [current, setCurrent] = useState(0);
   const isGallery = images.length > 1;
 
@@ -67,7 +68,23 @@ export function EasterEggLightbox({ open, onClose, images, title }: EasterEggLig
               </motion.h3>
             )}
 
+            {/* Video embed */}
+            {videoUrl && (
+              <div
+                className="w-full max-w-2xl aspect-video"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <iframe
+                  src={videoUrl}
+                  className="w-full h-full border border-gold/20 shadow-2xl"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            )}
+
             {/* Image + arrows row */}
+            {!videoUrl && images.length > 0 && (<>
             <div
               className="flex items-center gap-3 max-w-full"
               onClick={(e) => e.stopPropagation()}
@@ -115,7 +132,7 @@ export function EasterEggLightbox({ open, onClose, images, title }: EasterEggLig
             </div>
 
             {/* Caption */}
-            {images[current].caption && (
+            {images[current]?.caption && (
               <motion.p
                 key={`cap-${current}`}
                 initial={{ opacity: 0 }}
@@ -140,6 +157,8 @@ export function EasterEggLightbox({ open, onClose, images, title }: EasterEggLig
                 ))}
               </div>
             )}
+          </>
+          )}
 
             {/* Close hint */}
             <motion.div
