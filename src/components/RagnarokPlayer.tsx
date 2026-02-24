@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
 
-const PRONTERA_URL = 'https://downloads.khinsider.com/game-soundtracks/album/ragnarok-online-ost/11%2520-%2520Theme%2520of%2520Prontera.mp3';
+const PRONTERA_URL = '/easter-eggs/prontera.mp3';
 
 // Pixel art style Prontera scene using CSS
 function PronteraScene() {
@@ -130,7 +130,7 @@ export function RagnarokPlayer({ open, onClose }: { open: boolean; onClose: () =
 
               <PronteraScene />
 
-              {/* Play button */}
+              {/* Play button + visualizer */}
               <div className="text-center">
                 <motion.button
                   onClick={togglePlay}
@@ -145,24 +145,24 @@ export function RagnarokPlayer({ open, onClose }: { open: boolean; onClose: () =
                   {isPlaying ? '⏸ Pausar BGM' : '▶ Tocar Prontera BGM'}
                 </motion.button>
 
-                {isPlaying && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-3 flex justify-center gap-1"
-                  >
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <motion.div
-                        key={i}
-                        animate={{ height: [4, 12 + Math.random() * 8, 4] }}
-                        transition={{ duration: 0.5 + Math.random() * 0.5, repeat: Infinity, delay: i * 0.08 }}
-                        className="w-1 bg-neon-cyan/60 rounded-full"
-                      />
-                    ))}
-                  </motion.div>
-                )}
+                {/* Fixed-height container so layout doesn't jump */}
+                <div className="h-8 flex items-end justify-center gap-1 mt-3">
+                  {isPlaying && (
+                    <>
+                      {Array.from({ length: 12 }).map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ height: 4 }}
+                          animate={{ height: [4, 12 + Math.random() * 8, 4] }}
+                          transition={{ duration: 0.5 + Math.random() * 0.5, repeat: Infinity, delay: i * 0.08 }}
+                          className="w-1 bg-neon-cyan/60 rounded-full"
+                        />
+                      ))}
+                    </>
+                  )}
+                </div>
 
-                <p className="font-body text-cream/20 text-xs italic mt-4">
+                <p className="font-body text-cream/20 text-xs italic mt-2">
                   Novice → Thief → Rogue · Nunca esquecemos
                 </p>
               </div>

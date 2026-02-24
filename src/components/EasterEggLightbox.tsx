@@ -67,45 +67,50 @@ export function EasterEggLightbox({ open, onClose, images, title }: EasterEggLig
               </motion.h3>
             )}
 
-            {/* Image */}
+            {/* Image + arrows row */}
             <div
-              className="relative max-w-full max-h-[70vh] flex items-center justify-center"
+              className="flex items-center gap-3 max-w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={current}
-                  src={images[current].src}
-                  alt={images[current].caption || ''}
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
-                  transition={{ duration: 0.3 }}
-                  className="max-h-[70vh] max-w-full object-contain rounded-sm
-                    border border-gold/20 shadow-2xl"
-                />
-              </AnimatePresence>
-
-              {/* Gallery arrows */}
+              {/* Left arrow */}
               {isGallery && (
-                <>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setCurrent((p) => (p - 1 + images.length) % images.length); }}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center
-                      bg-stage-black/60 border border-gold/20 text-cream/60 hover:text-cream hover:border-gold/50
-                      transition-all cursor-pointer font-mono text-lg"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setCurrent((p) => (p + 1) % images.length); }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center
-                      bg-stage-black/60 border border-gold/20 text-cream/60 hover:text-cream hover:border-gold/50
-                      transition-all cursor-pointer font-mono text-lg"
-                  >
-                    ›
-                  </button>
-                </>
+                <button
+                  onClick={() => setCurrent((p) => (p - 1 + images.length) % images.length)}
+                  className="shrink-0 w-10 h-10 flex items-center justify-center
+                    border border-gold/20 text-cream/60 hover:text-cream hover:border-gold/50
+                    transition-all cursor-pointer font-mono text-lg"
+                >
+                  ‹
+                </button>
+              )}
+
+              {/* Image */}
+              <div className="relative max-w-full max-h-[65vh] flex items-center justify-center">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={current}
+                    src={images[current].src}
+                    alt={images[current].caption || ''}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -30 }}
+                    transition={{ duration: 0.3 }}
+                    className="max-h-[65vh] max-w-full object-contain rounded-sm
+                      border border-gold/20 shadow-2xl"
+                  />
+                </AnimatePresence>
+              </div>
+
+              {/* Right arrow */}
+              {isGallery && (
+                <button
+                  onClick={() => setCurrent((p) => (p + 1) % images.length)}
+                  className="shrink-0 w-10 h-10 flex items-center justify-center
+                    border border-gold/20 text-cream/60 hover:text-cream hover:border-gold/50
+                    transition-all cursor-pointer font-mono text-lg"
+                >
+                  ›
+                </button>
               )}
             </div>
 
