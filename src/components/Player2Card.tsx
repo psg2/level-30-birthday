@@ -116,8 +116,8 @@ export function Player2Card({ open, onClose }: { open: boolean; onClose: () => v
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 40 }}
             transition={{ duration: 0.4, type: 'spring', damping: 25 }}
-            className="fixed inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2
-              sm:w-full sm:max-w-3xl sm:max-h-[90vh] overflow-y-auto z-50"
+            className="fixed inset-4 sm:inset-6 md:inset-auto md:top-4 md:bottom-4 md:left-1/2 md:-translate-x-1/2
+              md:w-full md:max-w-3xl overflow-y-auto z-50"
           >
             <div className="relative border border-neon-magenta/30 bg-stage-dark/95 backdrop-blur-md p-5 sm:p-8 md:p-12"
               style={{ boxShadow: '0 0 60px rgba(247, 37, 133, 0.15), 0 0 120px rgba(247, 37, 133, 0.05)' }}>
