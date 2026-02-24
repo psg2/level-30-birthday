@@ -25,7 +25,7 @@ const milestones: Milestone[] = [
   { age: '12', title: 'Anime & Cosplay', subtitle: 'Desbloqueou skill: cultura otaku', icon: '⚡' },
   { age: '14', title: 'Jogador de LoL', subtitle: 'Ranked, tilts e pentakills', icon: '🏆', links: [
     { label: 'Twitch', url: 'https://www.twitch.tv/videos/47021114', icon: '📺' },
-    { label: 'Facebook', url: 'https://www.facebook.com/Inanis.lol?locale=pt_BR', icon: '👤' },
+    { label: 'Facebook', url: 'https://www.facebook.com/share/p/1BTyUk5fn7/', icon: '👤' },
   ], id: 'lol' },
   { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
   { age: '21', title: 'Rato de Academia', subtitle: 'Buff de stamina ativado', icon: '🏋️' },
