@@ -63,7 +63,9 @@ const easterEggImages: Record<string, { images: { src: string; caption?: string 
   },
   boardgames: {
     title: '🎲 A Coleção',
-    images: [],
+    images: [
+      { src: '/easter-eggs/Boardgames.jpeg', caption: 'Tudo começou com Splendor... e não parou mais' },
+    ],
   },
   teatro: {
     title: '🎭 Acervo Teatral',

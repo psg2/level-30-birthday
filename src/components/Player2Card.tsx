@@ -205,7 +205,7 @@ export function Player2Card({ open, onClose }: { open: boolean; onClose: () => v
                   <img
                     src="/easter-eggs/PedroCleaHalloween.jpg"
                     alt="Pedro & Cléa"
-                    className="h-52 lg:h-60 w-auto object-cover border border-neon-magenta/20 shadow-lg"
+                    className="h-44 lg:h-48 w-auto object-cover border border-neon-magenta/20 shadow-lg"
                   />
                   <p className="font-body text-cream/25 text-[10px] italic mt-2">Player 1 & Player 2</p>
                 </motion.div>
