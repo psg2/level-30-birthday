@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { syncTrophies } from '@/server/rsvp';
 
 export interface Trophy {
   id: string;
@@ -59,8 +60,21 @@ export function EasterEggProvider({ children }: { children: ReactNode }) {
   const total = TROPHIES.length;
   const allFound = found.size >= total;
 
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     saveFound(found);
+
+    // Auto-sync trophies to server if user has an RSVP
+    if (syncTimer.current) clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(() => {
+      try {
+        const rsvpId = localStorage.getItem('level30_rsvp_id');
+        if (rsvpId && found.size > 0) {
+          syncTrophies({ data: { id: rsvpId, trophies: [...found] } }).catch(() => {});
+        }
+      } catch {}
+    }, 1000); // debounce 1s
   }, [found]);
 
   const unlock = useCallback((id: string) => {

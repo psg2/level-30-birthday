@@ -32,6 +32,7 @@ export function RsvpPage({ id }: { id: string }) {
         setRsvp(data);
         syncEditFields(data);
         setState('view');
+        try { localStorage.setItem('level30_rsvp_id', id); } catch {}
       })
       .catch(() => setState('not-found'));
   }, [id]);

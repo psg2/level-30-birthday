@@ -371,6 +371,31 @@ export const updateRsvp = createServerFn({ method: 'POST' })
     }
   })
 
+export const syncTrophies = createServerFn({ method: 'POST' })
+  .inputValidator((data: { id: string; trophies: string[] }) => data)
+  .handler(async ({ data }) => {
+    const redis = getRedis()
+    const raw = await redis.get<string>(`birthday:rsvp:${data.id}`)
+    if (!raw) return { success: false }
+
+    const entry: RsvpEntry = typeof raw === 'string' ? JSON.parse(raw) : raw
+    const validTrophyIds = new Set(['nintendo', 'ragnarok', 'cosplay', 'lol', 'programming', 'clea', 'pets', 'boardgames', 'teatro'])
+    const cleaned = data.trophies.filter((t) => validTrophyIds.has(t))
+
+    // Only update if there are new trophies
+    const existing = new Set(entry.trophies || [])
+    const hasNew = cleaned.some((t) => !existing.has(t))
+    if (!hasNew) return { success: true }
+
+    // Merge — never remove trophies, only add
+    const merged = [...new Set([...(entry.trophies || []), ...cleaned])]
+    entry.trophies = merged
+    entry.updatedAt = new Date().toISOString()
+
+    await redis.set(`birthday:rsvp:${data.id}`, JSON.stringify(entry))
+    return { success: true }
+  })
+
 export const listRsvps = createServerFn({ method: 'GET' })
   .inputValidator((data: { key: string }) => data)
   .handler(async ({ data }) => {

@@ -55,6 +55,7 @@ export function RSVPSection() {
       }
 
       setRsvpId(result.id!);
+      try { localStorage.setItem('level30_rsvp_id', result.id!); } catch {}
       setState('confirmed');
     } catch {
       setError('Ops, algo deu errado. Tenta de novo!');
