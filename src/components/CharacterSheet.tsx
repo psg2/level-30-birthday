@@ -218,9 +218,9 @@ export function CharacterSheet() {
           open={true}
           onClose={() => setCosplayOpen(false)}
           images={[
-            { src: '/easter-eggs/Cosplay3.jpg', caption: 'Akatsuki — Naruto' },
-            { src: '/easter-eggs/Cosplay1.jpg', caption: 'Shino Aburame — KHR' },
-            { src: '/easter-eggs/Cosplay2.jpg', caption: 'Arrancar — Bleach' },
+            { src: '/easter-eggs/Cosplay3.jpg', caption: 'Sasori Akatsuki — Naruto Shippuden' },
+            { src: '/easter-eggs/Cosplay1.jpg', caption: 'Dino — Katekyo Hitman Reborn' },
+            { src: '/easter-eggs/Cosplay2.jpg', caption: 'Aizen — Bleach' },
           ]}
           title="⚡ Alter Ego · Cosplay"
           videoUrl="https://www.youtube.com/embed/KSUa-BNxhaU"
