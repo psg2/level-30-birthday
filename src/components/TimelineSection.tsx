@@ -1,10 +1,13 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
+import { Player2Card } from './Player2Card';
 
 interface Milestone {
   age: string;
   title: string;
   subtitle: string;
   icon: string;
+  easterEgg?: boolean;
 }
 
 const milestones: Milestone[] = [
@@ -15,7 +18,7 @@ const milestones: Milestone[] = [
   { age: '14', title: 'Jogador de LoL', subtitle: 'Ranked, tilts e pentakills', icon: '🏆' },
   { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
   { age: '21', title: 'Rato de Academia', subtitle: 'Buff de stamina ativado', icon: '🏋️' },
-  { age: '21', title: 'Encontrou o Amor', subtitle: 'Cléa entrou na party como Player 2', icon: '❤️' },
+  { age: '21', title: 'Encontrou o Amor', subtitle: 'Cléa entrou na party como Player 2', icon: '❤️', easterEgg: true },
   { age: '25', title: 'Pai de Pet', subtitle: 'Rick e Mel entram na party', icon: '🐕' },
   { age: '26', title: 'Vício em Board Games', subtitle: 'Tudo começou com Splendor', icon: '🎲' },
   { age: '28', title: 'Amante do Teatro', subtitle: 'Uma nova paixão entra em cena', icon: '🎭' },
@@ -23,6 +26,8 @@ const milestones: Milestone[] = [
 ];
 
 export function TimelineSection() {
+  const [player2Open, setPlayer2Open] = useState(false);
+
   return (
     <section className="relative py-24 md:py-32 px-6 overflow-hidden">
       {/* Background theatrical element */}
@@ -94,11 +99,14 @@ export function TimelineSection() {
               }`}>
                 <motion.div
                   whileHover={{ scale: 1.02 }}
+                  onClick={milestone.easterEgg ? () => setPlayer2Open(true) : undefined}
                   className={`p-5 border ${
                     isBoss
                       ? 'border-neon-magenta/40 bg-neon-magenta/5'
-                      : 'border-gold/10 bg-stage-dark/60'
-                  } backdrop-blur-sm transition-all hover:border-gold/30`}
+                      : milestone.easterEgg
+                        ? 'border-neon-magenta/20 bg-stage-dark/60 cursor-pointer hover:border-neon-magenta/50 hover:bg-neon-magenta/5'
+                        : 'border-gold/10 bg-stage-dark/60'
+                  } backdrop-blur-sm transition-all ${!milestone.easterEgg ? 'hover:border-gold/30' : ''}`}
                 >
                   <div className="flex items-center gap-3 mb-2"
                     style={{ flexDirection: isLeft ? 'row-reverse' : 'row' }}>
@@ -120,12 +128,23 @@ export function TimelineSection() {
                   <p className="font-body text-cream/40 text-sm mt-1 italic">
                     {milestone.subtitle}
                   </p>
+                  {milestone.easterEgg && (
+                    <motion.div
+                      animate={{ opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="font-mono text-[10px] text-neon-magenta/50 mt-2 tracking-widest"
+                    >
+                      ▸ TOQUE PARA VER PLAYER 2
+                    </motion.div>
+                  )}
                 </motion.div>
               </div>
             </motion.div>
           );
         })}
       </div>
+
+      <Player2Card open={player2Open} onClose={() => setPlayer2Open(false)} />
     </section>
   );
 }
