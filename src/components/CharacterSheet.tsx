@@ -212,13 +212,17 @@ export function CharacterSheet() {
         </div>
       </motion.div>
 
-      {/* Cosplay easter egg — YouTube embed */}
+      {/* Cosplay easter egg — YouTube embed + photos */}
       {cosplayOpen && (
         <EasterEggLightbox
           open={true}
           onClose={() => setCosplayOpen(false)}
-          images={[]}
-          title="⚡ Alter Ego"
+          images={[
+            { src: '/easter-eggs/Cosplay3.jpg', caption: 'Akatsuki — Naruto' },
+            { src: '/easter-eggs/Cosplay1.jpg', caption: 'Shino Aburame — KHR' },
+            { src: '/easter-eggs/Cosplay2.jpg', caption: 'Arrancar — Bleach' },
+          ]}
+          title="⚡ Alter Ego · Cosplay"
           videoUrl="https://www.youtube.com/embed/KSUa-BNxhaU"
         />
       )}

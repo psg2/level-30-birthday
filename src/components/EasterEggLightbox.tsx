@@ -43,7 +43,7 @@ export function EasterEggLightbox({ open, onClose, images, title, videoUrl }: Ea
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="fixed inset-4 sm:inset-8 md:inset-16 z-50 flex flex-col items-center justify-center"
+            className="fixed inset-4 sm:inset-8 md:inset-16 z-50 flex flex-col items-center justify-center overflow-y-auto"
             onClick={onClose}
           >
             {/* Easter egg label */}
@@ -71,7 +71,7 @@ export function EasterEggLightbox({ open, onClose, images, title, videoUrl }: Ea
             {/* Video embed */}
             {videoUrl && (
               <div
-                className="w-full max-w-2xl aspect-video"
+                className={`w-full max-w-2xl aspect-video ${images.length > 0 ? 'mb-4' : ''}`}
                 onClick={(e) => e.stopPropagation()}
               >
                 <iframe
@@ -84,7 +84,7 @@ export function EasterEggLightbox({ open, onClose, images, title, videoUrl }: Ea
             )}
 
             {/* Image + arrows row */}
-            {!videoUrl && images.length > 0 && (<>
+            {images.length > 0 && (<>
             <div
               className="flex items-center gap-3 max-w-full"
               onClick={(e) => e.stopPropagation()}
@@ -102,7 +102,7 @@ export function EasterEggLightbox({ open, onClose, images, title, videoUrl }: Ea
               )}
 
               {/* Image */}
-              <div className="relative max-w-full max-h-[65vh] flex items-center justify-center">
+              <div className={`relative max-w-full flex items-center justify-center ${videoUrl ? 'max-h-[30vh]' : 'max-h-[65vh]'}`}>
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={current}
@@ -112,8 +112,8 @@ export function EasterEggLightbox({ open, onClose, images, title, videoUrl }: Ea
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -30 }}
                     transition={{ duration: 0.3 }}
-                    className="max-h-[65vh] max-w-full object-contain rounded-sm
-                      border border-gold/20 shadow-2xl"
+                    className={`max-w-full object-contain rounded-sm
+                      border border-gold/20 shadow-2xl ${videoUrl ? 'max-h-[30vh]' : 'max-h-[65vh]'}`}
                   />
                 </AnimatePresence>
               </div>
