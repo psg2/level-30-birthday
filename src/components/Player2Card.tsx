@@ -14,7 +14,7 @@ const stats: Stat[] = [
   { label: 'EMP', fullName: 'Empatia', value: 97, maxValue: 100, color: '#7B61FF' },
   { label: 'GAM', fullName: 'Gaming', value: 80, maxValue: 100, color: '#00F5D4' },
   { label: 'GAS', fullName: 'Gastronomia', value: 88, maxValue: 100, color: '#D4A843' },
-  { label: 'VIA', fullName: 'Viajante', value: 95, maxValue: 100, color: '#E8C96A' },
+  { label: 'COZ', fullName: 'Cozinha', value: 95, maxValue: 100, color: '#E8C96A' },
   { label: 'SAB', fullName: 'Sabedoria (já chegou aos 30 antes)', value: 30, maxValue: 100, color: '#00F5D4' },
 ];
 
@@ -23,7 +23,7 @@ const traits = [
   { icon: '🎮', label: 'Gamer', desc: 'Companheira de raids e board games' },
   { icon: '🍰', label: 'Foodie', desc: 'Parceira de crime gastronômico' },
   { icon: '🎭', label: 'Amante do Teatro', desc: 'Duo inseparável nas peças' },
-  { icon: '✈️', label: 'Viajante', desc: 'Sempre planejando a próxima aventura' },
+  { icon: '👩‍🍳', label: 'Chef', desc: 'Faz o melhor brownie do mundo inteiro' },
   { icon: '🐕', label: 'Mãe de Pet', desc: '🐶 Rick · 🍯 Mel' },
 ];
 
@@ -171,7 +171,7 @@ export function Player2Card({ open, onClose }: { open: boolean; onClose: () => v
                     transition={{ delay: 0.4 }}
                     className="font-mono text-neon-magenta/60 text-[10px] sm:text-xs mt-2 tracking-wider leading-relaxed"
                   >
-                    <span>CLASSE: Cuidadora / Viajante / Mãe de Pet</span>
+                    <span>CLASSE: Cuidadora / Chef / Mãe de Pet</span>
                     <br className="sm:hidden" />
                     <span className="hidden sm:inline">&nbsp;|&nbsp;</span>
                     <span>ROLE: Player 2</span>
