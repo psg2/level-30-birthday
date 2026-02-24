@@ -2,12 +2,19 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 import { Player2Card } from './Player2Card';
 
+interface MilestoneLink {
+  label: string;
+  url: string;
+  icon: string;
+}
+
 interface Milestone {
   age: string;
   title: string;
   subtitle: string;
   icon: string;
   easterEgg?: boolean;
+  links?: MilestoneLink[];
 }
 
 const milestones: Milestone[] = [
@@ -15,7 +22,10 @@ const milestones: Milestone[] = [
   { age: '5', title: 'Primeira Quest: Nintendo', subtitle: 'O vício em jogos começa aqui', icon: '🎮' },
   { age: '10', title: 'Ragnarök Online', subtitle: 'Novice → Thief → Rogue', icon: '⚔️' },
   { age: '12', title: 'Anime & Cosplay', subtitle: 'Desbloqueou skill: cultura otaku', icon: '⚡' },
-  { age: '14', title: 'Jogador de LoL', subtitle: 'Ranked, tilts e pentakills', icon: '🏆' },
+  { age: '14', title: 'Jogador de LoL', subtitle: 'Ranked, tilts e pentakills', icon: '🏆', links: [
+    { label: 'Twitch', url: 'https://www.twitch.tv/videos/47021114', icon: '📺' },
+    { label: 'Facebook', url: 'https://www.facebook.com/Inanis.lol?locale=pt_BR', icon: '👤' },
+  ] },
   { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
   { age: '21', title: 'Rato de Academia', subtitle: 'Buff de stamina ativado', icon: '🏋️' },
   { age: '21', title: 'Encontrou o Amor', subtitle: 'Cléa entrou na party como Player 2', icon: '❤️', easterEgg: true },
@@ -128,6 +138,30 @@ export function TimelineSection() {
                   <p className="font-body text-cream/40 text-sm mt-1 italic">
                     {milestone.subtitle}
                   </p>
+                  {milestone.links && (
+                    <motion.div
+                      animate={{ opacity: [0.4, 0.7, 0.4] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="flex items-center gap-3 mt-2"
+                      style={{ justifyContent: isLeft ? 'flex-end' : 'flex-start' }}
+                    >
+                      <span className="font-mono text-[10px] text-neon-cyan/40 tracking-widest">▸ PROVAS</span>
+                      {milestone.links.map((link) => (
+                        <a
+                          key={link.label}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-mono text-[10px] text-neon-cyan/50 hover:text-neon-cyan
+                            border border-neon-cyan/20 hover:border-neon-cyan/50 px-2 py-0.5
+                            transition-all no-underline hover:bg-neon-cyan/5"
+                        >
+                          {link.icon} {link.label}
+                        </a>
+                      ))}
+                    </motion.div>
+                  )}
                   {milestone.easterEgg && (
                     <motion.div
                       animate={{ opacity: [0.3, 0.6, 0.3] }}
