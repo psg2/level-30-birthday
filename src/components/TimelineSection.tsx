@@ -56,7 +56,10 @@ const easterEggImages: Record<string, { images: { src: string; caption?: string 
   },
   programming: {
     title: '💻 Era Competitiva',
-    images: [],
+    images: [
+      { src: '/easter-eggs/Maratona1.jpg', caption: 'Maratona de Programação — os tempos de ICPC' },
+      { src: '/easter-eggs/Maratona2.jpeg', caption: 'Quando o código compilava de primeira era milagre' },
+    ],
   },
   boardgames: {
     title: '🎲 A Coleção',
