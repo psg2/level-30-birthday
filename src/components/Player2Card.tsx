@@ -190,8 +190,26 @@ export function Player2Card({ open, onClose }: { open: boolean; onClose: () => v
                 </motion.div>
               </div>
 
-              {/* Stats */}
-              <StatRows stats={stats} />
+              {/* Stats + Photo row */}
+              <div className="flex gap-6 items-start">
+                <div className="flex-1 min-w-0">
+                  <StatRows stats={stats} />
+                </div>
+                {/* Photo — desktop only, next to stats, matched height */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="hidden md:flex flex-col items-center shrink-0"
+                >
+                  <img
+                    src="/easter-eggs/PedroCleaHalloween.jpg"
+                    alt="Pedro & Cléa"
+                    className="h-52 lg:h-60 w-auto object-cover border border-neon-magenta/20 shadow-lg"
+                  />
+                  <p className="font-body text-cream/25 text-[10px] italic mt-2">Player 1 & Player 2</p>
+                </motion.div>
+              </div>
 
               {/* Divider */}
               <div className="h-px bg-gradient-to-r from-transparent via-neon-magenta/30 to-transparent mb-10" />
@@ -214,12 +232,12 @@ export function Player2Card({ open, onClose }: { open: boolean; onClose: () => v
                 ))}
               </div>
 
-              {/* Photo */}
+              {/* Photo — mobile only */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
-                className="flex justify-center mt-8"
+                className="flex justify-center mt-8 md:hidden"
               >
                 <img
                   src="/easter-eggs/PedroCleaHalloween.jpg"
