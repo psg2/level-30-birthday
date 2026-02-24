@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Player2Card } from './Player2Card';
 import { EasterEggLightbox } from './EasterEggLightbox';
 import { RagnarokPlayer } from './RagnarokPlayer';
+import { NintendoPlayer } from './NintendoPlayer';
 import { useEasterEggs } from '@/hooks/useEasterEggs';
 
 interface MilestoneLink {
@@ -49,10 +50,6 @@ const easterEggImages: Record<string, { images: { src: string; caption?: string 
     ],
   },
   // Placeholder entries — will be filled when photos arrive
-  nintendo: {
-    title: '🎮 Primeiras Quests',
-    images: [],
-  },
   cosplay: {
     title: '⚡ Alter Ego',
     images: [],
@@ -76,13 +73,14 @@ const easterEggImages: Record<string, { images: { src: string; caption?: string 
 // IDs that open a lightbox (have images)
 const lightboxIds = new Set(Object.keys(easterEggImages));
 // IDs that open special modals
-const specialIds = new Set(['clea', 'ragnarok']);
+const specialIds = new Set(['clea', 'ragnarok', 'nintendo']);
 // IDs that reveal links inline
 const linkIds = new Set(['lol']);
 
 export function TimelineSection() {
   const [player2Open, setPlayer2Open] = useState(false);
   const [ragnarokOpen, setRagnarokOpen] = useState(false);
+  const [nintendoOpen, setNintendoOpen] = useState(false);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
   const [revealedLinks, setRevealedLinks] = useState<Set<string>>(new Set());
   const { unlock } = useEasterEggs();
@@ -166,6 +164,8 @@ export function TimelineSection() {
                             setPlayer2Open(true);
                           } else if (id === 'ragnarok') {
                             setRagnarokOpen(true);
+                          } else if (id === 'nintendo') {
+                            setNintendoOpen(true);
                           } else if (linkIds.has(id)) {
                             setRevealedLinks((prev) => { const next = new Set(prev); next.add(id); return next; });
                           } else if (lightboxIds.has(id)) {
@@ -248,6 +248,7 @@ export function TimelineSection() {
 
       <Player2Card open={player2Open} onClose={() => setPlayer2Open(false)} />
       <RagnarokPlayer open={ragnarokOpen} onClose={() => setRagnarokOpen(false)} />
+      <NintendoPlayer open={nintendoOpen} onClose={() => setNintendoOpen(false)} />
       {lightboxId && easterEggImages[lightboxId] && (
         <EasterEggLightbox
           open={true}
