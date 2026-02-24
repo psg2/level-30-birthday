@@ -146,8 +146,22 @@ export function Player2Card({ open, onClose }: { open: boolean; onClose: () => v
                 🔓 EASTER EGG DESBLOQUEADO
               </motion.div>
 
+              {/* Photo */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex justify-center mt-6 mb-6"
+              >
+                <img
+                  src="/easter-eggs/PedroCleaHalloween.jpg"
+                  alt="Pedro & Cléa"
+                  className="max-h-48 sm:max-h-56 w-auto object-contain border border-neon-magenta/20 shadow-lg"
+                />
+              </motion.div>
+
               {/* Header */}
-              <div className="flex items-start justify-between gap-4 mb-10 mt-6">
+              <div className="flex items-start justify-between gap-4 mb-10">
                 <div className="min-w-0">
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
