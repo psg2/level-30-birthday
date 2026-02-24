@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { submitRsvp } from '@/server/rsvp';
 import type { PlusOne } from '@/server/rsvp';
 import { PlatinumBadge } from './PlatinumBadge';
+import { useEasterEggs } from '@/hooks/useEasterEggs';
 
 type RsvpState = 'idle' | 'form' | 'submitting' | 'confirmed' | 'declined' | 'duplicate';
 
@@ -19,6 +20,7 @@ export function RSVPSection() {
   const [rsvpId, setRsvpId] = useState('');
   const [existingId, setExistingId] = useState('');
   const [website, setWebsite] = useState(''); // honeypot
+  const { found } = useEasterEggs();
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -41,6 +43,7 @@ export function RSVPSection() {
           message: message.trim(),
           foodRestrictions: foodRestrictions.trim(),
           plusOnes: plusOnes.filter((p) => p.name.trim().length > 0),
+          trophies: [...found],
           website,
         },
       });

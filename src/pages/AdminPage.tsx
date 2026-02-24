@@ -296,6 +296,12 @@ export function AdminPage() {
                               +{guest.plusOnes.length}: {guest.plusOnes.map((p: { name: string }) => p.name).join(', ')}
                             </p>
                           )}
+                          {guest.trophies && guest.trophies.length > 0 && (
+                            <p className="font-mono text-[10px] text-[#cd7f32]/60 truncate">
+                              🏆 {guest.trophies.length}/9{' '}
+                              {guest.trophies.length >= 9 && '🏅 PLATINA'}
+                            </p>
+                          )}
                         </div>
 
                         {/* Date + link */}

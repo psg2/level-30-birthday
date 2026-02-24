@@ -52,6 +52,7 @@ export interface RsvpEntry {
   message: string
   foodRestrictions: string
   plusOnes: PlusOne[]
+  trophies: string[]
   status: 'confirmed' | 'cancelled'
   createdAt: string
   updatedAt: string
@@ -68,6 +69,7 @@ export interface RsvpPublic {
   email: string // masked
   message: string
   foodRestrictions: string
+  trophies: string[]
   plusOnes: PlusOnePublic[]
   status: 'confirmed' | 'cancelled'
   createdAt: string
@@ -188,11 +190,12 @@ export const submitRsvp = createServerFn({ method: 'POST' })
     message: string
     foodRestrictions?: string
     plusOnes?: PlusOne[]
+    trophies?: string[]
     website?: string
   }) => data)
   .handler(async ({ data }) => {
     const redis = getRedis()
-    const { name, email, message, foodRestrictions, plusOnes, website } = data
+    const { name, email, message, foodRestrictions, plusOnes, trophies, website } = data
 
     // Honeypot check — bots fill this invisible field; silently fake success
     if (website) {
@@ -228,6 +231,7 @@ export const submitRsvp = createServerFn({ method: 'POST' })
       message: (message || '').trim(),
       foodRestrictions: (foodRestrictions || '').trim(),
       plusOnes: cleanPlusOnes,
+      trophies: trophies || [],
       status: 'confirmed',
       createdAt: now,
       updatedAt: now,
@@ -276,6 +280,7 @@ export const getRsvp = createServerFn({ method: 'GET' })
       ...entry,
       email: maskEmail(entry.email),
       foodRestrictions: entry.foodRestrictions || '',
+      trophies: entry.trophies || [],
       plusOnes: (entry.plusOnes || []).map((p) => ({
         name: p.name,
         email: p.email ? maskEmail(p.email) : '',
@@ -358,6 +363,7 @@ export const updateRsvp = createServerFn({ method: 'POST' })
       ...entry,
       email: maskEmail(entry.email),
       foodRestrictions: entry.foodRestrictions || '',
+      trophies: entry.trophies || [],
       plusOnes: (entry.plusOnes || []).map((p) => ({
         name: p.name,
         email: p.email ? maskEmail(p.email) : '',
