@@ -64,37 +64,55 @@ export function RagnarokPlayer({ open, onClose }: { open: boolean; onClose: () =
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    if (!open) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-      setIsPlaying(false);
-      return;
+  // Ensure audio element exists
+  const getAudio = () => {
+    if (!audioRef.current) {
+      const audio = document.createElement('audio');
+      audio.src = PRONTERA_URL;
+      audio.volume = 0.4;
+      audio.loop = true;
+      audio.preload = 'auto';
+      audioRef.current = audio;
     }
+    return audioRef.current;
+  };
+
+  const play = () => {
+    const audio = getAudio();
+    audio.play().then(() => setIsPlaying(true)).catch(() => {});
+  };
+
+  const pause = () => {
+    const audio = getAudio();
+    audio.pause();
+    setIsPlaying(false);
+  };
+
+  const stop = () => {
+    const audio = getAudio();
+    audio.pause();
+    audio.currentTime = 0;
+    setIsPlaying(false);
+  };
+
+  // Auto-play on open, stop on close
+  useEffect(() => {
+    if (open) {
+      play();
+    } else {
+      stop();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [open, onClose]);
-
-  const togglePlay = () => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio(PRONTERA_URL);
-      audioRef.current.volume = 0.4;
-      audioRef.current.loop = true;
-      audioRef.current.onended = () => setIsPlaying(false);
-    }
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play().catch(() => {});
-      setIsPlaying(true);
-    }
-  };
 
   return (
     <AnimatePresence>
@@ -133,7 +151,7 @@ export function RagnarokPlayer({ open, onClose }: { open: boolean; onClose: () =
               {/* Play button + visualizer */}
               <div className="text-center">
                 <motion.button
-                  onClick={togglePlay}
+                  onClick={isPlaying ? pause : play}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={`font-mono text-sm px-6 py-3 border cursor-pointer transition-all ${
