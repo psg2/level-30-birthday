@@ -13,7 +13,7 @@ interface Milestone {
   title: string;
   subtitle: string;
   icon: string;
-  easterEgg?: boolean;
+  id?: string;
   links?: MilestoneLink[];
 }
 
@@ -25,10 +25,10 @@ const milestones: Milestone[] = [
   { age: '14', title: 'Jogador de LoL', subtitle: 'Ranked, tilts e pentakills', icon: '🏆', links: [
     { label: 'Twitch', url: 'https://www.twitch.tv/videos/47021114', icon: '📺' },
     { label: 'Facebook', url: 'https://www.facebook.com/Inanis.lol?locale=pt_BR', icon: '👤' },
-  ] },
+  ], id: 'lol' },
   { age: '18', title: 'Nova Árvore de Habilidade: Código', subtitle: 'Hello, World!', icon: '💻' },
   { age: '21', title: 'Rato de Academia', subtitle: 'Buff de stamina ativado', icon: '🏋️' },
-  { age: '21', title: 'Encontrou o Amor', subtitle: 'Cléa entrou na party como Player 2', icon: '❤️', easterEgg: true },
+  { age: '21', title: 'Encontrou o Amor', subtitle: 'Cléa entrou na party como Player 2', icon: '❤️', id: 'clea' },
   { age: '25', title: 'Pai de Pet', subtitle: 'Rick e Mel entram na party', icon: '🐕' },
   { age: '26', title: 'Vício em Board Games', subtitle: 'Tudo começou com Splendor', icon: '🎲' },
   { age: '28', title: 'Amante do Teatro', subtitle: 'Uma nova paixão entra em cena', icon: '🎭' },
@@ -37,6 +37,7 @@ const milestones: Milestone[] = [
 
 export function TimelineSection() {
   const [player2Open, setPlayer2Open] = useState(false);
+  const [revealedLinks, setRevealedLinks] = useState<Set<string>>(new Set());
 
   return (
     <section className="relative py-24 md:py-32 px-6 overflow-hidden">
@@ -109,14 +110,22 @@ export function TimelineSection() {
               }`}>
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  onClick={milestone.easterEgg ? () => setPlayer2Open(true) : undefined}
+                  onClick={
+                    milestone.id === 'clea'
+                      ? () => setPlayer2Open(true)
+                      : milestone.links && milestone.id
+                        ? () => setRevealedLinks((prev) => { const next = new Set(prev); next.add(milestone.id!); return next; })
+                        : undefined
+                  }
                   className={`p-5 border ${
                     isBoss
                       ? 'border-neon-magenta/40 bg-neon-magenta/5'
-                      : milestone.easterEgg
+                      : milestone.id === 'clea'
                         ? 'border-neon-magenta/20 bg-stage-dark/60 cursor-pointer hover:border-neon-magenta/50 hover:bg-neon-magenta/5'
-                        : 'border-gold/10 bg-stage-dark/60'
-                  } backdrop-blur-sm transition-all ${!milestone.easterEgg ? 'hover:border-gold/30' : ''}`}
+                        : milestone.links
+                          ? 'border-gold/10 bg-stage-dark/60 cursor-pointer hover:border-gold/30'
+                          : 'border-gold/10 bg-stage-dark/60 hover:border-gold/30'
+                  } backdrop-blur-sm transition-all`}
                 >
                   <div className="flex items-center gap-3 mb-2"
                     style={{ flexDirection: isLeft ? 'row-reverse' : 'row' }}>
@@ -138,14 +147,15 @@ export function TimelineSection() {
                   <p className="font-body text-cream/40 text-sm mt-1 italic">
                     {milestone.subtitle}
                   </p>
-                  {milestone.links && (
+                  {milestone.links && milestone.id && revealedLinks.has(milestone.id) && (
                     <motion.div
-                      animate={{ opacity: [0.4, 0.7, 0.4] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="flex items-center gap-3 mt-2"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center gap-3 mt-3 pt-3 border-t border-gold/10 flex-wrap"
                       style={{ justifyContent: isLeft ? 'flex-end' : 'flex-start' }}
                     >
-                      <span className="font-mono text-[10px] text-neon-cyan/40 tracking-widest">▸ PROVAS</span>
+                      <span className="font-mono text-[10px] text-neon-cyan/40 tracking-widest">🔓 PROVAS</span>
                       {milestone.links.map((link) => (
                         <a
                           key={link.label}
@@ -162,7 +172,7 @@ export function TimelineSection() {
                       ))}
                     </motion.div>
                   )}
-                  {milestone.easterEgg && (
+                  {milestone.id === 'clea' && (
                     <motion.div
                       animate={{ opacity: [0.3, 0.6, 0.3] }}
                       transition={{ duration: 2, repeat: Infinity }}
