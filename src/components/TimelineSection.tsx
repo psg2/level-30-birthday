@@ -166,8 +166,8 @@ export function TimelineSection() {
                             setRagnarokOpen(true);
                           } else if (linkIds.has(id)) {
                             setRevealedLinks((prev) => { const next = new Set(prev); next.add(id); return next; });
-                          } else if (lightboxIds.has(id) && easterEggImages[id].images.length > 0) {
-                            setLightboxId(id);
+                          } else if (lightboxIds.has(id)) {
+                            if (easterEggImages[id].images.length > 0) setLightboxId(id);
                           }
                           unlock(id);
                         }
