@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Stat {
   label: string;
@@ -15,6 +15,7 @@ const stats: Stat[] = [
   { label: 'GAM', fullName: 'Gaming', value: 80, maxValue: 100, color: '#00F5D4' },
   { label: 'GAS', fullName: 'Gastronomia', value: 88, maxValue: 100, color: '#D4A843' },
   { label: 'VIA', fullName: 'Viajante', value: 95, maxValue: 100, color: '#E8C96A' },
+  { label: 'SAB', fullName: 'Sabedoria (já chegou aos 30 antes)', value: 30, maxValue: 100, color: '#00F5D4' },
 ];
 
 const traits = [
@@ -86,6 +87,15 @@ function StatRows({ stats: statList }: { stats: Stat[] }) {
 }
 
 export function Player2Card({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [open, onClose]);
+
   return (
     <AnimatePresence>
       {open && (
