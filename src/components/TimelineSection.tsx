@@ -69,7 +69,15 @@ const easterEggImages: Record<string, { images: { src: string; caption?: string 
   },
   teatro: {
     title: '🎭 Acervo Teatral',
-    images: [],
+    images: [
+      { src: '/easter-eggs/ACorPurpura.jpg', caption: 'A Cor Púrpura' },
+      { src: '/easter-eggs/PorElas.jpg', caption: 'Por Elas' },
+      { src: '/easter-eggs/RioUphill.jpg', caption: 'Rio Uphill' },
+      { src: '/easter-eggs/TomJobim.jpg', caption: 'Tom Jobim' },
+      { src: '/easter-eggs/MeninasMalvadas.jpg', caption: 'Meninas Malvadas' },
+      { src: '/easter-eggs/Alice.jpg', caption: 'Alice' },
+      { src: '/easter-eggs/Hair.jpg', caption: 'Hair' },
+    ],
   },
 };
 
