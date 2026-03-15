@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
-import { listRsvps, deleteRsvp, toggleAttendance } from '@/server/rsvp'
+import { listRsvps, deleteRsvp, toggleAttendance, addWalkIn, removeWalkIn } from '@/server/rsvp'
 import type { RsvpEntry } from '@/server/rsvp'
 
 type ViewState = 'auth' | 'loading' | 'ready' | 'error'
@@ -62,6 +62,7 @@ export function AdminPage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [copyFeedback, setCopyFeedback] = useState('')
   const [showExport, setShowExport] = useState(false)
+  const [walkInForm, setWalkInForm] = useState<{ guestId: string; name: string } | null>(null)
 
   const loadGuests = useCallback(async (adminKey: string) => {
     setViewState('loading')
@@ -131,10 +132,48 @@ export function AdminPage() {
     }
   }
 
+  const handleAddWalkIn = async (guestId: string, name: string) => {
+    const adminKey = sessionStorage.getItem('admin_key')
+    if (!adminKey || !name.trim()) return
+    try {
+      await addWalkIn({ data: { id: guestId, key: adminKey, name: name.trim() } })
+      setGuests((prev) =>
+        prev.map((g) => {
+          if (g.id !== guestId) return g
+          return { ...g, walkIns: [...(g.walkIns || []), { name: name.trim(), attended: true }] }
+        }),
+      )
+      setWalkInForm(null)
+    } catch {
+      alert('Erro ao adicionar walk-in')
+    }
+  }
+
+  const handleRemoveWalkIn = async (guestId: string, walkInIndex: number, name: string) => {
+    if (!confirm(`Remover "${name}" dos walk-ins?`)) return
+    const adminKey = sessionStorage.getItem('admin_key')
+    if (!adminKey) return
+    try {
+      await removeWalkIn({ data: { id: guestId, key: adminKey, walkInIndex } })
+      setGuests((prev) =>
+        prev.map((g) => {
+          if (g.id !== guestId) return g
+          const updated = [...(g.walkIns || [])]
+          updated.splice(walkInIndex, 1)
+          return { ...g, walkIns: updated }
+        }),
+      )
+    } catch {
+      alert('Erro ao remover walk-in')
+    }
+  }
+
   // ── Attendance stats ──
   const confirmedGuests = guests.filter((g) => g.status === 'confirmed')
+  const walkInTotal = confirmedGuests.reduce((s, g) => s + (g.walkIns || []).length, 0)
   const attendedCount = confirmedGuests.filter((g) => g.attended === true).length
     + confirmedGuests.reduce((s, g) => s + (g.plusOnes || []).filter((p) => p.attended === true).length, 0)
+    + walkInTotal
   const noshowCount = confirmedGuests.filter((g) => g.attended === false).length
     + confirmedGuests.reduce((s, g) => s + (g.plusOnes || []).filter((p) => p.attended === false).length, 0)
 
@@ -149,6 +188,9 @@ export function AdminPage() {
       for (const p of (g.plusOnes || [])) {
         const pAttended = p.attended === true ? 'Sim' : p.attended === false ? 'Não' : '—'
         rows.push(`${p.name}\tAcompanhante de ${g.name}\t${p.email || ''}\t\t${pAttended}\t`)
+      }
+      for (const w of (g.walkIns || [])) {
+        rows.push(`${w.name}\tWalk-in via ${g.name}\t\t\tSim\t`)
       }
     }
     return rows.join('\n')
@@ -179,6 +221,9 @@ export function AdminPage() {
       for (const p of (g.plusOnes || [])) {
         const pAttended = p.attended === true ? 'Sim' : p.attended === false ? 'Não' : '—'
         rows.push(`${esc(p.name)},Acompanhante de ${esc(g.name)},${esc(p.email || '')},,${pAttended},`)
+      }
+      for (const w of (g.walkIns || [])) {
+        rows.push(`${esc(w.name)},Walk-in via ${esc(g.name)},,,Sim,`)
       }
     }
     const csv = rows.join('\n')
@@ -504,6 +549,74 @@ export function AdminPage() {
                                 small
                               />
                             ))}
+
+                            {/* Walk-ins */}
+                            {(guest.walkIns || []).map((w, wi) => (
+                              <span
+                                key={`w-${wi}`}
+                                className="inline-flex items-center gap-1.5 px-2 py-0.5 border
+                                  border-gold/25 bg-gold/8 font-mono text-[10px] text-gold/70 group/walkin"
+                              >
+                                <span>★</span>
+                                <span className="truncate max-w-[120px]">{w.name}</span>
+                                <button
+                                  onClick={() => handleRemoveWalkIn(guest.id, wi, w.name)}
+                                  className="text-cream/15 hover:text-neon-magenta ml-0.5 cursor-pointer
+                                    opacity-0 group-hover/walkin:opacity-100 transition-opacity"
+                                >
+                                  ✕
+                                </button>
+                              </span>
+                            ))}
+
+                            {/* Add walk-in button / inline form */}
+                            {walkInForm?.guestId === guest.id ? (
+                              <form
+                                className="inline-flex items-center gap-1.5"
+                                onSubmit={(e) => {
+                                  e.preventDefault()
+                                  handleAddWalkIn(guest.id, walkInForm.name)
+                                }}
+                              >
+                                <input
+                                  type="text"
+                                  value={walkInForm.name}
+                                  onChange={(e) => setWalkInForm({ guestId: guest.id, name: e.target.value })}
+                                  placeholder="Nome..."
+                                  autoFocus
+                                  className="bg-transparent border border-gold/20 text-cream font-mono text-[10px]
+                                    px-2 py-0.5 w-28 placeholder:text-cream/15
+                                    focus:outline-none focus:border-gold/50 transition-all"
+                                  onKeyDown={(e) => { if (e.key === 'Escape') setWalkInForm(null) }}
+                                />
+                                <button
+                                  type="submit"
+                                  className="text-neon-cyan/50 hover:text-neon-cyan font-mono text-[10px]
+                                    cursor-pointer transition-colors"
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setWalkInForm(null)}
+                                  className="text-cream/20 hover:text-cream/40 font-mono text-[10px]
+                                    cursor-pointer transition-colors"
+                                >
+                                  ✕
+                                </button>
+                              </form>
+                            ) : (
+                              <button
+                                onClick={() => setWalkInForm({ guestId: guest.id, name: '' })}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 border border-dashed
+                                  border-cream/10 text-cream/20 font-mono text-[10px]
+                                  cursor-pointer hover:border-gold/30 hover:text-gold/50 transition-all"
+                                title="Adicionar walk-in (pessoa que veio sem RSVP)"
+                              >
+                                <span>+</span>
+                                <span>walk-in</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
@@ -550,8 +663,8 @@ export function AdminPage() {
                           </button>
                         </div>
                         <p className="font-mono text-[10px] text-cream/20">
-                          Inclui: nome, tipo (convidado/acompanhante), email, restrições, presença e mensagem.
-                          Cada acompanhante aparece em sua própria linha.
+                          Inclui: nome, tipo (convidado/acompanhante/walk-in), email, restrições, presença e mensagem.
+                          Cada acompanhante e walk-in aparece em sua própria linha.
                         </p>
                       </div>
                     </motion.div>

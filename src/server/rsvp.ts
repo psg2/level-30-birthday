@@ -46,6 +46,11 @@ export interface PlusOne {
   attended?: boolean | null // null = not marked, true = showed up, false = no-show
 }
 
+export interface WalkIn {
+  name: string
+  attended: boolean // always true by default — they literally walked in
+}
+
 export interface RsvpEntry {
   id: string
   name: string
@@ -53,6 +58,7 @@ export interface RsvpEntry {
   message: string
   foodRestrictions: string
   plusOnes: PlusOne[]
+  walkIns?: WalkIn[]
   trophies: string[]
   status: 'confirmed' | 'cancelled'
   attended?: boolean | null // null = not marked yet, true = showed up, false = no-show
@@ -473,6 +479,47 @@ export const toggleAttendance = createServerFn({ method: 'POST' })
       entry.attended = data.attended
     }
 
+    entry.updatedAt = new Date().toISOString()
+
+    await redis.set(`birthday:rsvp:${data.id}`, JSON.stringify(entry))
+    return { success: true }
+  })
+
+export const addWalkIn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { id: string; key: string; name: string }) => data)
+  .handler(async ({ data }) => {
+    const adminKey = process.env.ADMIN_KEY
+    if (!adminKey || data.key !== adminKey) throw new Error('Não autorizado')
+    if (!data.name || !data.name.trim()) throw new Error('Nome é obrigatório')
+
+    const redis = getRedis()
+    const raw = await redis.get<string>(`birthday:rsvp:${data.id}`)
+    if (!raw) throw new Error('RSVP não encontrado')
+
+    const entry: RsvpEntry = typeof raw === 'string' ? JSON.parse(raw) : raw
+    if (!entry.walkIns) entry.walkIns = []
+    entry.walkIns.push({ name: data.name.trim(), attended: true })
+    entry.updatedAt = new Date().toISOString()
+
+    await redis.set(`birthday:rsvp:${data.id}`, JSON.stringify(entry))
+    return { success: true }
+  })
+
+export const removeWalkIn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { id: string; key: string; walkInIndex: number }) => data)
+  .handler(async ({ data }) => {
+    const adminKey = process.env.ADMIN_KEY
+    if (!adminKey || data.key !== adminKey) throw new Error('Não autorizado')
+
+    const redis = getRedis()
+    const raw = await redis.get<string>(`birthday:rsvp:${data.id}`)
+    if (!raw) throw new Error('RSVP não encontrado')
+
+    const entry: RsvpEntry = typeof raw === 'string' ? JSON.parse(raw) : raw
+    if (!entry.walkIns || data.walkInIndex >= entry.walkIns.length) {
+      throw new Error('Walk-in não encontrado')
+    }
+    entry.walkIns.splice(data.walkInIndex, 1)
     entry.updatedAt = new Date().toISOString()
 
     await redis.set(`birthday:rsvp:${data.id}`, JSON.stringify(entry))
