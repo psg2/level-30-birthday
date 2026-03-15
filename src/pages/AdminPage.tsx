@@ -236,6 +236,44 @@ export function AdminPage() {
     URL.revokeObjectURL(url)
   }
 
+  const generateMarkdown = () => {
+    const pad = (s: string, len: number) => s.length >= len ? s : s + ' '.repeat(len - s.length)
+    const rows: string[][] = [['Nome', 'Tipo', 'Compareceu', 'Restrições']]
+    for (const g of confirmedGuests) {
+      const att = g.attended === true ? '✅' : g.attended === false ? '❌' : '—'
+      rows.push([g.name, 'Convidado', att, g.foodRestrictions || ''])
+      for (const p of (g.plusOnes || [])) {
+        const pAtt = p.attended === true ? '✅' : p.attended === false ? '❌' : '—'
+        rows.push([p.name, `Acomp. de ${g.name}`, pAtt, ''])
+      }
+      for (const w of (g.walkIns || [])) {
+        rows.push([w.name, `Walk-in via ${g.name}`, '✅', ''])
+      }
+    }
+    // Calculate column widths
+    const colWidths = rows[0].map((_, ci) => Math.max(...rows.map((r) => r[ci].length)))
+    const header = '| ' + rows[0].map((c, ci) => pad(c, colWidths[ci])).join(' | ') + ' |'
+    const separator = '| ' + colWidths.map((w) => '-'.repeat(w)).join(' | ') + ' |'
+    const body = rows.slice(1).map((r) => '| ' + r.map((c, ci) => pad(c, colWidths[ci])).join(' | ') + ' |')
+    return [header, separator, ...body].join('\n')
+  }
+
+  const copyMarkdown = async () => {
+    const md = generateMarkdown()
+    try {
+      await navigator.clipboard.writeText(md)
+    } catch {
+      const ta = document.createElement('textarea')
+      ta.value = md
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+    }
+    setCopyFeedback('md')
+    setTimeout(() => setCopyFeedback(''), 2000)
+  }
+
   // ── Filtering ──
   const filteredGuests = guests.filter((g) => {
     if (filter === 'confirmed') return g.status === 'confirmed'
@@ -652,7 +690,14 @@ export function AdminPage() {
                             className="px-4 py-2 border border-neon-cyan/30 text-neon-cyan/70 font-mono text-xs
                               cursor-pointer hover:bg-neon-cyan/10 hover:border-neon-cyan/50 transition-all"
                           >
-                            {copyFeedback || '📋 Copiar tabela (cola no Sheets/Excel)'}
+                            {copyFeedback === 'Copiado!' ? '✓ Copiado!' : '📋 Copiar tabela (Sheets/Excel)'}
+                          </button>
+                          <button
+                            onClick={copyMarkdown}
+                            className="px-4 py-2 border border-neon-cyan/30 text-neon-cyan/70 font-mono text-xs
+                              cursor-pointer hover:bg-neon-cyan/10 hover:border-neon-cyan/50 transition-all"
+                          >
+                            {copyFeedback === 'md' ? '✓ Copiado!' : '📝 Copiar Markdown (Notion)'}
                           </button>
                           <button
                             onClick={downloadCsv}
