@@ -43,6 +43,7 @@ async function checkRateLimit(redis: Redis): Promise<boolean> {
 export interface PlusOne {
   name: string
   email: string
+  attended?: boolean | null // null = not marked, true = showed up, false = no-show
 }
 
 export interface RsvpEntry {
@@ -54,6 +55,7 @@ export interface RsvpEntry {
   plusOnes: PlusOne[]
   trophies: string[]
   status: 'confirmed' | 'cancelled'
+  attended?: boolean | null // null = not marked yet, true = showed up, false = no-show
   createdAt: string
   updatedAt: string
 }
@@ -445,5 +447,34 @@ export const deleteRsvp = createServerFn({ method: 'POST' })
       console.error('Calendar remove error:', e)
     }
 
+    return { success: true }
+  })
+
+export const toggleAttendance = createServerFn({ method: 'POST' })
+  .inputValidator((data: { id: string; key: string; attended: boolean | null; plusOneIndex?: number }) => data)
+  .handler(async ({ data }) => {
+    const adminKey = process.env.ADMIN_KEY
+    if (!adminKey || data.key !== adminKey) throw new Error('Não autorizado')
+
+    const redis = getRedis()
+    const raw = await redis.get<string>(`birthday:rsvp:${data.id}`)
+    if (!raw) throw new Error('RSVP não encontrado')
+
+    const entry: RsvpEntry = typeof raw === 'string' ? JSON.parse(raw) : raw
+
+    if (data.plusOneIndex !== undefined && data.plusOneIndex !== null) {
+      // Toggle attendance for a specific plus-one
+      if (!entry.plusOnes || data.plusOneIndex >= entry.plusOnes.length) {
+        throw new Error('Acompanhante não encontrado')
+      }
+      entry.plusOnes[data.plusOneIndex].attended = data.attended
+    } else {
+      // Toggle attendance for the primary guest
+      entry.attended = data.attended
+    }
+
+    entry.updatedAt = new Date().toISOString()
+
+    await redis.set(`birthday:rsvp:${data.id}`, JSON.stringify(entry))
     return { success: true }
   })
